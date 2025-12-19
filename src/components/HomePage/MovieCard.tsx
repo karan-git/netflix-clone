@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-interface MovieCardProps {
+export interface MovieCardProps {
   image: string;
   duration?: string;
   views?: string;

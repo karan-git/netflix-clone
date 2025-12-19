@@ -51,16 +51,16 @@ export default function Carousel({
   };
 
   /* Touch Swipe */
-  let startX = 0;
+  const startX = useRef(0);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    startX = e.touches[0].clientX;
+    startX.current = e.touches[0].clientX;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
     const endX = e.changedTouches[0].clientX;
-    if (startX - endX > 50) nextSlide();
-    if (endX - startX > 50) prevSlide();
+    if (startX.current - endX > 50) nextSlide();
+    if (endX - startX.current > 50) prevSlide();
   };
 
   return (

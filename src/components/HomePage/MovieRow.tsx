@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import { MovieCard } from "./MovieCard";
+import { MovieCard, MovieCardProps } from "./MovieCard";
 
 function getVisibleCount(width: number) {
   if (width >= 1280) return 5;
@@ -12,7 +12,13 @@ function getVisibleCount(width: number) {
   return 1.25; // mobile peek
 }
 
-export function MovieRow({ title, items }: { title: string; items: any[] }) {
+export function MovieRow({
+  title,
+  items,
+}: {
+  title: string;
+  items: MovieCardProps[];
+}) {
   const [visible, setVisible] = useState(5);
   const [page, setPage] = useState(0);
 
