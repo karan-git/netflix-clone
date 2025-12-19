@@ -58,7 +58,7 @@ export default function VerifyEmail({
         >
           {/* Icon */}
           <SquareArrowOutUpRight />
-          Continue To Email
+          Continue With Link
         </button>
       </main>
     </div>
