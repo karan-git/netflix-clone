@@ -3,17 +3,26 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { Eye, EyeOff, Loader2 } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema, LoginFormValues } from "@/lib/validations/auth";
+import { useLogin } from "@/hooks/useAuth";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const router = useRouter();
+  const { mutate: login, isPending, error: authError } = useLogin();
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
+  });
+
+  const onSubmit = (data: LoginFormValues) => {
+    login(data);
   };
 
   return (
@@ -25,19 +34,32 @@ export default function LoginPage() {
 
         {/* Form */}
         <form
-          onSubmit={handleSubmit}
+          onSubmit={handleSubmit(onSubmit)}
           className="mt-12 w-full max-w-md space-y-6"
         >
+          {authError && (
+            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm">
+              {(authError as any)?.response?.data?.message ||
+                "Login failed. Please try again."}
+            </div>
+          )}
+
           {/* Email */}
           <div>
             <label className="text-zinc-300 text-sm">Email</label>
             <input
               type="email"
-              className="mt-2 w-full h-14 px-4 rounded-xl border border-neutral-200 bg-transparent text-white placeholder-white/40"
+              className={`mt-2 w-full h-14 px-4 rounded-xl border ${
+                errors.email ? "border-red-500" : "border-neutral-200"
+              } bg-transparent text-white placeholder-white/40`}
               placeholder="XYZ@gmail.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              {...register("email")}
             />
+            {errors.email && (
+              <p className="mt-1 text-red-500 text-xs">
+                {errors.email.message}
+              </p>
+            )}
           </div>
 
           {/* Password + Forgot Password aligned */}
@@ -46,10 +68,11 @@ export default function LoginPage() {
             <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
-                className="mt-2 w-full h-14 px-4 rounded-xl border border-neutral-200 bg-transparent text-white placeholder-white/40 pr-12"
+                className={`mt-2 w-full h-14 px-4 rounded-xl border ${
+                  errors.password ? "border-red-500" : "border-neutral-200"
+                } bg-transparent text-white placeholder-white/40 pr-12`}
                 placeholder="*************"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                {...register("password")}
               />
               <button
                 type="button"
@@ -60,6 +83,11 @@ export default function LoginPage() {
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
               </button>
             </div>
+            {errors.password && (
+              <p className="mt-1 text-red-500 text-xs">
+                {errors.password.message}
+              </p>
+            )}
             {/* RIGHT ALIGNED, SAME POSITION FEEL */}
             <div className="mt-2 text-right">
               <Link
@@ -74,10 +102,11 @@ export default function LoginPage() {
           {/* Sign In Button */}
           <button
             type="submit"
-            className="w-full h-14 cursor-pointer rounded-full bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 text-white text-2xl font-semibold"
-            onClick={() => router.push("/profile")}
+            disabled={isPending}
+            className="w-full h-14 cursor-pointer rounded-full bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 text-white text-2xl font-semibold flex items-center justify-center gap-2 disabled:opacity-70"
           >
-            Sign In
+            {isPending && <Loader2 className="animate-spin" size={24} />}
+            {isPending ? "Signing In..." : "Sign In"}
           </button>
         </form>
 

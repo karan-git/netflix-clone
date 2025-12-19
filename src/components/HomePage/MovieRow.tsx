@@ -48,11 +48,11 @@ export function MovieRow({
           {title}
         </h2>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 bg-neutral-800">
           <button
             onClick={prev}
             disabled={page === 0}
-            className="p-2 sm:p-3 rounded-lg bg-neutral-800 text-white disabled:opacity-40 hover:bg-neutral-700"
+            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700"
           >
             <ChevronLeft />
           </button>
@@ -75,7 +75,7 @@ export function MovieRow({
           <button
             onClick={next}
             disabled={page === maxPage}
-            className="p-2 sm:p-3 rounded-lg bg-neutral-800 text-white disabled:opacity-40 hover:bg-neutral-700"
+            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700"
           >
             <ChevronRight />
           </button>

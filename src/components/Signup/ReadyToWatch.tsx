@@ -1,12 +1,15 @@
 "use client";
 
 import Image from "next/image";
+import { useState } from "react";
 
 export default function ReadyToWatch({
   onNextStep,
 }: {
-  onNextStep: () => void;
+  onNextStep: (email: string) => void;
 }) {
+  const [email, setEmail] = useState("");
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       {/* ================= CTA SECTION ================= */}
@@ -39,13 +42,15 @@ export default function ReadyToWatch({
           <input
             type="email"
             placeholder="XYZ@gmail.com"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             className="w-full h-14 px-4 rounded-xl bg-transparent border border-neutral-400 text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-400"
           />
         </div>
 
         {/* CTA Button */}
         <button
-          onClick={onNextStep}
+          onClick={() => onNextStep(email)}
           className="mt-8 px-12 py-4 rounded-full text-xl font-semibold bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500"
         >
           Get Started

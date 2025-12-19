@@ -26,7 +26,7 @@ export default function HomePage() {
         ]}
       />
 
-      <div className="px-12 pr-0">
+      <div className="px-12 pr-0 mb-12">
         <MovieRow
           title="Top 10 Trending"
           items={Array(8).fill({
