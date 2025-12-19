@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Netflix Clone PWA
+
+This is a Next.js project with full PWA support using App Router.
 
 ## Getting Started
 
-First, run the development server:
+First, install the dependencies:
+
+```bash
+npm install
+```
+
+Run the development server:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Building for Production
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+To see the PWA in action, you should build and start the production server (Service Workers are disabled in development by default):
 
-## Learn More
+```bash
+npm run build
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Verifying PWA Support
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+1.  **Manifest & Service Worker**:
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+    - Open Chrome DevTools (F12).
+    - Go to the **Application** tab.
+    - Check **Manifest** to see the App Name, Icons, and Theme Color.
+    - Check **Service Workers** to see the registered worker.
 
-## Deploy on Vercel
+2.  **Installability**:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+    - In the address bar (Chrome/Edge), look for the "Install" icon.
+    - Or click the three dots menu -> "Install Netflix Clone PWA".
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+3.  **Offline Mode**:
+    - In DevTools -> Application -> Service Workers, check "Offline".
+    - Refresh the page. It should still load (served from cache).
+
+## Project Structure
+
+- `app/layout.tsx`: Contains PWA metadata and viewport configuration.
+- `app/page.tsx`: Home page with PWA status indicators.
+- `public/manifest.json`: Web App Manifest.
+- `next.config.mjs`: Next.js config with `@ducanh2912/next-pwa`.
