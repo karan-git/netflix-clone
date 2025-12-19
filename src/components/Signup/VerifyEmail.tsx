@@ -3,11 +3,19 @@
 import { SquareArrowOutUpRight } from "lucide-react";
 import Image from "next/image";
 
+import { AuthResponse } from "@/types/auth";
+
 export default function VerifyEmail({
-  onNextStep,
+  authData,
 }: {
-  onNextStep: () => void;
+  authData: AuthResponse | null;
 }) {
+  const handleContinue = () => {
+    if (authData?.data?.link) {
+      window.location.href = authData.data.link;
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       {/* ================= CONTENT ================= */}
@@ -33,7 +41,7 @@ export default function VerifyEmail({
         <p className="text-neutral-300 text-base sm:text-xl mb-6">
           Almost there! We just sent an email to
           <span className="block font-medium text-white mt-1">
-            XYZ@gmail.com
+            {authData?.data?.email || "XYZ@gmail.com"}
           </span>
         </p>
 
@@ -44,7 +52,10 @@ export default function VerifyEmail({
         </p>
 
         {/* CTA */}
-        <button className="flex items-center gap-3 px-10 py-4 rounded-full text-xl font-medium bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500">
+        <button
+          onClick={handleContinue}
+          className="flex items-center gap-3 px-10 py-4 rounded-full text-xl font-medium bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500"
+        >
           {/* Icon */}
           <SquareArrowOutUpRight />
           Continue To Email

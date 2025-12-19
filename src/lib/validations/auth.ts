@@ -12,6 +12,7 @@ export const signupSchema = z
     confirmPassword: z
       .string()
       .min(6, "Password must be at least 6 characters"),
+    country: z.string().min(2, "Country must be at least 2 characters"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",

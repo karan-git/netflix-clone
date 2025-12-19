@@ -7,7 +7,13 @@ export interface User {
 
 export interface AuthResponse {
   user: User;
-  token: string;
+  data: {
+    token: string;
+    refreshToken?: string;
+    link?: string;
+    email?: string;
+    accessToken?: string;
+  };
 }
 
 export interface LoginRequest {
@@ -19,4 +25,5 @@ export interface SignupRequest {
   email: string;
   password?: string;
   name?: string;
+  country: string;
 }

@@ -25,12 +25,43 @@ api.interceptors.request.use(
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Handle unauthorized error (e.g., redirect to login or clear cookies)
-      Cookies.remove("token");
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      originalRequest._retry = true;
+      const refreshToken = Cookies.get("refreshToken");
+
+      if (refreshToken) {
+        try {
+          // Import authService dynamically to avoid circular dependency
+          const { authService } = await import("@/services/authService");
+          const data = await authService.refreshToken(refreshToken);
+
+          if (data.data.accessToken) {
+            if (data.data.accessToken) {
+              Cookies.set("token", data.data.accessToken, { expires: 7 });
+            }
+            api.defaults.headers.common[
+              "Authorization"
+            ] = `Bearer ${data.data.accessToken}`;
+            return api(originalRequest);
+          }
+        } catch (refreshError) {
+          // If refresh fails, clear cookies and redirect
+          Cookies.remove("token");
+          Cookies.remove("refreshToken");
+          if (typeof window !== "undefined") {
+            window.location.href = "/login";
+          }
+          return Promise.reject(refreshError);
+        }
+      } else {
+        // No refresh token, clear and redirect
+        Cookies.remove("token");
+        if (typeof window !== "undefined") {
+          window.location.href = "/login";
+        }
       }
     }
     return Promise.reject(error);
