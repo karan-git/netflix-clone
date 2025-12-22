@@ -29,7 +29,10 @@ type SignupFormValues = z.infer<typeof signupSchema>;
 //   { code: "SG", name: "Singapore (+65)" },
 // ];
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { Alert } from "@/components/Common/Alert";
+import { Button } from "@/components/Common/Button";
+import { Input } from "@/components/Common/Input";
 
 import { AuthResponse } from "@/types/auth";
 
@@ -38,11 +41,17 @@ export default function ReadyToWatch({
 }: {
   onNextStep: (data: AuthResponse) => void;
 }) {
+  const [error, setError] = useState<string | null>(null);
   const {
     mutate: signup,
     isPending,
     error: authError,
   } = useSignup((data) => {
+    console.log(data);
+    if (!data.status) {
+      setError(data?.message || "Signup failed. Please try again.");
+      return;
+    }
     onNextStep(data);
   });
 
@@ -89,7 +98,7 @@ export default function ReadyToWatch({
   return (
     <div className="min-h-screen bg-gray-900 text-white flex flex-col">
       {/* ================= CTA SECTION ================= */}
-      <section className="flex flex-col items-center justify-center text-center px-6 py-24">
+      <section className="flex flex-col items-center justify-center px-6 py-24">
         {/* Logo */}
         <div className="relative mb-10">
           <div className="w-28 h-28 rounded-full border-4 border-pink-400 bg-black/30 shadow-lg" />
@@ -115,11 +124,15 @@ export default function ReadyToWatch({
           onSubmit={handleSubmit(onSubmit)}
           className="w-full max-w-xl space-y-4"
         >
-          {authError && (
-            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/50 text-red-500 text-sm text-left">
-              {(authError as any)?.response?.data?.message ||
-                "Signup failed. Please try again."}
-            </div>
+          {(authError || error) && (
+            <Alert
+              type="error"
+              message={
+                (authError as any)?.response?.data?.message ||
+                error ||
+                "Signup failed. Please try again."
+              }
+            />
           )}
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -148,35 +161,25 @@ export default function ReadyToWatch({
             </div> */}
 
             {/* Email Input */}
-            <div className="flex-1">
-              <label className="block text-left text-sm text-zinc-300 mb-2">
-                Email
-              </label>
-              <input
-                type="email"
-                placeholder="XYZ@gmail.com"
-                className={`w-full h-14 px-4 rounded-xl bg-transparent border ${
-                  errors.email ? "border-red-500" : "border-neutral-400"
-                } text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-cyan-400`}
-                {...register("email")}
-              />
-              {errors.email && (
-                <p className="mt-1 text-red-500 text-xs text-left">
-                  {errors.email.message}
-                </p>
-              )}
-            </div>
+            <Input
+              label="Email"
+              type="email"
+              placeholder="XYZ@gmail.com"
+              className="h-14 rounded-xl bg-transparent border-neutral-400 text-white placeholder-neutral-500 focus:ring-cyan-400"
+              error={errors.email?.message}
+              {...register("email")}
+            />
           </div>
 
           {/* CTA Button */}
-          <button
+          <Button
             type="submit"
-            disabled={isPending}
-            className="mt-4 w-full sm:w-auto px-12 py-4 rounded-full text-xl font-semibold bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 flex items-center justify-center gap-2 disabled:opacity-70"
+            isLoading={isPending}
+            variant="custom"
+            className="mt-4 w-full sm:w-auto px-12 py-4 rounded-full text-xl font-semibold bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500"
           >
-            {isPending && <Loader2 className="animate-spin" size={24} />}
-            {isPending ? "Starting..." : "Get Started"}
-          </button>
+            Get Started
+          </Button>
         </form>
       </section>
     </div>

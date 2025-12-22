@@ -9,6 +9,7 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
+import { Button } from "@/components/Common/Button";
 
 interface HeroSlide {
   image: string;
@@ -103,9 +104,12 @@ export function HeroCarousel({
               </p>
 
               <div className="mt-8 flex items-center gap-4">
-                <button className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 rounded-lg text-white font-semibold">
+                <Button
+                  variant="custom"
+                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 rounded-lg text-white font-semibold border-none shadow-none"
+                >
                   ▶ Play Now
-                </button>
+                </Button>
 
                 <IconButton>
                   <Plus />
@@ -123,27 +127,30 @@ export function HeroCarousel({
       </div>
 
       {/* ARROWS */}
-      <button
+      <Button
+        variant="custom"
         onClick={prev}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-3 rounded-full hover:bg-black/70"
+        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-3 rounded-full hover:bg-black/70 border-none shadow-none"
       >
         <ChevronLeft className="text-white" />
-      </button>
+      </Button>
 
-      <button
+      <Button
+        variant="custom"
         onClick={next}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-3 rounded-full hover:bg-black/70"
+        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-3 rounded-full hover:bg-black/70 border-none shadow-none"
       >
         <ChevronRight className="text-white" />
-      </button>
+      </Button>
 
       {/* DOTS */}
       <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20">
         {slides.map((_, index) => (
-          <button
+          <Button
             key={index}
+            variant="custom"
             onClick={() => setCurrent(index)}
-            className={`h-2 rounded-full transition-all ${
+            className={`h-2 rounded-full transition-all border-none shadow-none p-0 ${
               current === index ? "w-8 bg-[#25A4AD]" : "w-2 bg-white/40"
             }`}
           />
@@ -156,8 +163,11 @@ export function HeroCarousel({
 /* Icon Button */
 function IconButton({ children }: { children: React.ReactNode }) {
   return (
-    <button className="p-3 bg-black/60 border border-neutral-700 rounded-lg hover:bg-black/80 text-white">
+    <Button
+      variant="custom"
+      className="p-3 bg-black/60 border border-neutral-700 rounded-lg hover:bg-black/80 text-white shadow-none"
+    >
       {children}
-    </button>
+    </Button>
   );
 }

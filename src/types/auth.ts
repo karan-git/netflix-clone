@@ -14,6 +14,8 @@ export interface AuthResponse {
     email?: string;
     accessToken?: string;
   };
+  status?: boolean;
+  message?: string;
 }
 
 export interface LoginRequest {

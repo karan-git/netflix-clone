@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
+import { Button } from "@/components/Common/Button";
 
 interface SlideItem {
   image?: string;
@@ -106,12 +107,13 @@ export default function Carousel({
 
             {/* GET STARTED BUTTON (LAST SLIDE ONLY) */}
             {index === slides.length - 1 && (
-              <button
-                className="mt-10 px-8 py-4 cursor-pointer rounded-full bg-gradient-to-r from-teal-400 to-cyan-500 text-black font-semibold text-lg hover:opacity-90 transition"
+              <Button
+                variant="custom"
+                className="mt-10 px-8 py-4 rounded-full bg-gradient-to-r from-teal-400 to-cyan-500 font-semibold text-lg border-none shadow-none"
                 onClick={onFinish}
               >
                 Get Started
-              </button>
+              </Button>
             )}
           </div>
         ))}
@@ -119,32 +121,35 @@ export default function Carousel({
 
       {/* LEFT ARROW (HIDDEN ON FIRST SLIDE) */}
       {current > 0 && (
-        <button
+        <Button
+          variant="custom"
           onClick={prevSlide}
-          className="absolute left-4 cursor-pointer top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60"
+          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60 border-none shadow-none p-0"
         >
           <Image src="/images/left-arrow.png" width={60} height={60} alt="" />
-        </button>
+        </Button>
       )}
 
       {/* RIGHT ARROW (HIDDEN ON LAST SLIDE) */}
       {current < slides.length - 1 && (
-        <button
+        <Button
+          variant="custom"
           onClick={nextSlide}
-          className="absolute right-4 cursor-pointer top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60"
+          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60 border-none shadow-none p-0"
         >
           <Image src="/images/right-arrow.png" width={60} height={60} alt="" />
-        </button>
+        </Button>
       )}
 
       {/* DOTS */}
       {/* DOTS */}
       <div className="absolute bottom-16 left-0 right-0 z-20 flex justify-center gap-3">
         {slides.map((_, index) => (
-          <button
+          <Button
             key={index}
+            variant="custom"
             onClick={() => setCurrent(index)}
-            className={`h-3 rounded-full transition-all cursor-pointer duration-300 ${
+            className={`h-3 rounded-full transition-all duration-300 border-none shadow-none p-0 ${
               current === index ? "w-8 bg-[#25A4AD]" : "w-3 bg-white/50"
             }`}
           />

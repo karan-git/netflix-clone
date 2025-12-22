@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { MovieCard, MovieCardProps } from "./MovieCard";
+import { Button } from "@/components/Common/Button";
 
 function getVisibleCount(width: number) {
   if (width >= 1280) return 5;
@@ -49,21 +50,23 @@ export function MovieRow({
         </h2>
 
         <div className="flex items-center gap-3 bg-neutral-800">
-          <button
+          <Button
+            variant="custom"
             onClick={prev}
             disabled={page === 0}
-            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700"
+            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700 border-none shadow-none"
           >
             <ChevronLeft />
-          </button>
+          </Button>
 
           {/* DOTS */}
           <div className="flex items-center gap-2">
             {Array.from({ length: totalPages }).map((_, i) => (
-              <button
+              <Button
                 key={i}
+                variant="custom"
                 onClick={() => setPage(i)}
-                className={`h-2 rounded-full transition-all ${
+                className={`h-2 rounded-full transition-all border-none shadow-none p-0 ${
                   page === i
                     ? "w-6 bg-[#25A4AD]"
                     : "w-2 bg-white/40 hover:bg-white/60"
@@ -72,13 +75,14 @@ export function MovieRow({
             ))}
           </div>
 
-          <button
+          <Button
+            variant="custom"
             onClick={next}
             disabled={page === maxPage}
-            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700"
+            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700 border-none shadow-none"
           >
             <ChevronRight />
-          </button>
+          </Button>
         </div>
       </div>
 

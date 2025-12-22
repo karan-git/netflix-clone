@@ -2,6 +2,7 @@
 
 import { SquareArrowOutUpRight } from "lucide-react";
 import Image from "next/image";
+import { Button } from "@/components/Common/Button";
 
 import { AuthResponse } from "@/types/auth";
 
@@ -52,14 +53,14 @@ export default function VerifyEmail({
         </p>
 
         {/* CTA */}
-        <button
+        <Button
           onClick={handleContinue}
+          variant="custom"
           className="flex items-center gap-3 px-10 py-4 rounded-full text-xl font-medium bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500"
+          leftIcon={<SquareArrowOutUpRight />}
         >
-          {/* Icon */}
-          <SquareArrowOutUpRight />
           Continue With Link
-        </button>
+        </Button>
       </main>
     </div>
   );
