@@ -26,7 +26,7 @@ interface HeroCarouselProps {
 export function HeroCarousel({
   slides,
   autoplay = true,
-  interval = 5000,
+  interval = 3000,
 }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
   const timerRef = useRef<NodeJS.Timeout | null>(null);

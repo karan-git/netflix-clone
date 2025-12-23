@@ -95,7 +95,7 @@ export function MovieRow({
           }}
         >
           {items.map((item, i) => (
-            <MovieCard key={i} {...item} />
+            <MovieCard key={i} id={item.id || i} {...item} />
           ))}
         </div>
       </div>

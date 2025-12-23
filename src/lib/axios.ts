@@ -58,8 +58,12 @@ api.interceptors.response.use(
         }
       } else {
         // No refresh token, clear and redirect
+        // route to login if not in login page
         Cookies.remove("token");
-        if (typeof window !== "undefined") {
+        if (
+          typeof window !== "undefined" &&
+          window.location.pathname !== "/login"
+        ) {
           window.location.href = "/login";
         }
       }

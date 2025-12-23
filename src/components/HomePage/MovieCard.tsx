@@ -1,15 +1,24 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export interface MovieCardProps {
+  id?: string | number;
   image: string;
   duration?: string;
   views?: string;
   footer?: React.ReactNode;
 }
 
-export function MovieCard({ image, duration, views, footer }: MovieCardProps) {
+export function MovieCard({
+  id = "1",
+  image,
+  duration,
+  views,
+  footer,
+}: MovieCardProps) {
   return (
-    <div
+    <Link
+      href={`/movie/${id}`}
       className="
         flex-shrink-0
         bg-zinc-900 border border-neutral-800 rounded-xl
@@ -19,6 +28,9 @@ export function MovieCard({ image, duration, views, footer }: MovieCardProps) {
         sm:w-[300px]
         md:w-[280px]
         lg:w-[260px]
+        transition-all duration-300 ease-in-out
+        hover:scale-105 hover:border-neutral-600 hover:shadow-2xl hover:shadow-black/50
+        cursor-pointer
       "
     >
       {/* IMAGE */}
@@ -55,6 +67,6 @@ export function MovieCard({ image, duration, views, footer }: MovieCardProps) {
 
       {/* FOOTER */}
       {footer}
-    </div>
+    </Link>
   );
 }

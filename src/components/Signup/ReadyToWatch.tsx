@@ -121,7 +121,10 @@ export default function ReadyToWatch({
 
         {/* Form */}
         <form
-          onSubmit={handleSubmit(onSubmit)}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleSubmit(onSubmit)(e);
+          }}
           className="w-full max-w-xl space-y-4"
         >
           {(authError || error) && (
@@ -172,12 +175,7 @@ export default function ReadyToWatch({
           </div>
 
           {/* CTA Button */}
-          <Button
-            type="submit"
-            isLoading={isPending}
-            variant="custom"
-            className="mt-4 w-full sm:w-auto px-12 py-4 rounded-full text-xl font-semibold bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500"
-          >
+          <Button type="submit" isLoading={isPending} variant="primary">
             Get Started
           </Button>
         </form>
