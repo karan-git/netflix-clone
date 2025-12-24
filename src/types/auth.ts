@@ -10,10 +10,10 @@ export interface AuthResponse {
   data: {
     token: string;
     refreshToken?: string;
-    link?: string;
-    email?: string;
     accessToken?: string;
   };
+  link?: string;
+  email?: string;
   status?: boolean;
   message?: string;
 }

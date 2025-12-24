@@ -100,7 +100,7 @@ export default function LoginPage() {
         {/* Social Buttons */}
         <Button
           variant="custom"
-          className="mt-6 w-80 h-12 rounded-full border border-neutral-200"
+          className="mt-6 w-80 h-12 text-md rounded-full border border-neutral-200"
           size="md"
           leftIcon={
             <Image
@@ -116,7 +116,7 @@ export default function LoginPage() {
 
         <Button
           variant="custom"
-          className="mt-4 w-80 h-12 rounded-full border border-neutral-200"
+          className="mt-4 w-80 h-12 text-md rounded-full border border-neutral-200"
           size="md"
           leftIcon={
             <Image src="/images/apple.png" alt="Apple" width={20} height={20} />

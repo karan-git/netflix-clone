@@ -3,7 +3,7 @@
 import { SquareArrowOutUpRight } from "lucide-react";
 import Image from "next/image";
 import { Button } from "@/components/Common/Button";
-
+import { useRouter } from "next/navigation";
 import { AuthResponse } from "@/types/auth";
 
 export default function VerifyEmail({
@@ -11,9 +11,11 @@ export default function VerifyEmail({
 }: {
   authData: AuthResponse | null;
 }) {
+  const router = useRouter();
+
   const handleContinue = () => {
-    if (authData?.data?.link) {
-      window.location.href = authData.data.link;
+    if (authData?.link) {
+      window.location.href = authData.link;
     }
   };
 
@@ -39,28 +41,36 @@ export default function VerifyEmail({
         </h1>
 
         {/* Sub text */}
-        <p className="text-neutral-300 text-base sm:text-xl mb-6">
+        <div className="text-neutral-300 text-base sm:text-xl mb-6">
           Almost there! We just sent an email to
           <span className="block font-medium text-white mt-1">
-            {authData?.data?.email || "XYZ@gmail.com"}
+            {authData?.email || "XYZ@gmail.com"}
           </span>
-        </p>
+        </div>
 
         {/* Description */}
         <p className="text-lg sm:text-2xl text-white max-w-3xl mb-10">
-          You are only a few steps away from watching your favourite shows and
-          movies.
+          Follow the further steps from your email
         </p>
 
         {/* CTA */}
-        <Button
-          onClick={handleContinue}
-          variant="custom"
-          className="flex items-center gap-3 px-10 py-4 rounded-full text-xl font-medium bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500"
-          leftIcon={<SquareArrowOutUpRight />}
-        >
-          Continue With Link
-        </Button>
+        <div className="flex items-center justify-center gap-4">
+          <Button
+            onClick={handleContinue}
+            variant="primary"
+            className="w-100"
+            leftIcon={<SquareArrowOutUpRight />}
+          >
+            Continue With Link
+          </Button>
+          <Button
+            onClick={() => router.push("/login")}
+            variant="primary"
+            className="w-100"
+          >
+            Sign In
+          </Button>
+        </div>
       </main>
     </div>
   );

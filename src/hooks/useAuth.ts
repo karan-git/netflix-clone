@@ -15,22 +15,18 @@ export const useLogin = () => {
         if (data.data.refreshToken) {
           Cookies.set("refreshToken", data.data.refreshToken, { expires: 30 }); // Save refresh token for 30 days
         }
-        router.push("/home");
+        router.push("/who-is-watching");
       }
     },
   });
 };
 
 export const useSignup = (onSuccess?: (data: AuthResponse) => void) => {
-  const router = useRouter();
-
   return useMutation({
     mutationFn: (data: SignupRequest) => authService.signup(data),
     onSuccess: (data) => {
       if (onSuccess) {
         onSuccess(data);
-      } else {
-        router.push("/home");
       }
     },
   });

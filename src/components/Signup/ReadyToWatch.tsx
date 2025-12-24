@@ -175,7 +175,12 @@ export default function ReadyToWatch({
           </div>
 
           {/* CTA Button */}
-          <Button type="submit" isLoading={isPending} variant="primary">
+          <Button
+            type="submit"
+            isLoading={isPending}
+            variant="primary"
+            className="mt-12"
+          >
             Get Started
           </Button>
         </form>

@@ -9,10 +9,11 @@ export function Header() {
   const pathname = usePathname();
 
   const navItems = [
-    { name: "Home", path: "/" },
+    { name: "Home", path: "/home" },
     { name: "Movies & Shows", path: "/movies" },
-    { name: "Support", path: "/support" },
     { name: "Subscriptions", path: "/subscriptions" },
+    { name: "Watchlist", path: "/watchlist" },
+    { name: "Downloads", path: "/downloads" },
   ];
 
   return (
@@ -20,7 +21,7 @@ export function Header() {
       {/* Logo */}
       <div
         className="flex items-center gap-3 cursor-pointer"
-        onClick={() => router.push("/")}
+        onClick={() => router.push("/profile")}
       >
         <Image src="/images/logo-icon.png" alt="logo" width={59} height={59} />
       </div>
@@ -35,7 +36,7 @@ export function Header() {
               onClick={() => router.push(item.path)}
               className={`text-sm px-4 py-2 rounded-lg transition-colors cursor-pointer ${
                 isActive
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-zinc-700 text-white"
                   : "text-stone-300 hover:text-white"
               }`}
             >
@@ -46,8 +47,11 @@ export function Header() {
       </nav>
 
       {/* Actions */}
-      <div className="flex gap-4">
-        <Search className="cursor-pointer text-stone-300 hover:text-white" />
+      <div className="flex gap-6">
+        <Search
+          className="cursor-pointer text-stone-300 hover:text-white"
+          onClick={() => router.push("/search")}
+        />
         <Bell className="cursor-pointer text-stone-300 hover:text-white" />
       </div>
     </header>

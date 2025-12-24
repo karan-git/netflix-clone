@@ -1,3 +1,4 @@
+import { Clock, Eye } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -22,14 +23,14 @@ export function MovieCard({
       className="
         flex-shrink-0
         bg-zinc-900 border border-neutral-800 rounded-xl
-        p-4 sm:p-5 lg:p-6
+        p-4
         flex flex-col gap-4
         w-[72vw]
-        sm:w-[300px]
-        md:w-[280px]
-        lg:w-[260px]
+        sm:w-[400px]
+        md:w-[350px]
+        lg:w-[300px]
         transition-all duration-300 ease-in-out
-        hover:scale-105 hover:border-neutral-600 hover:shadow-2xl hover:shadow-black/50
+        hover:scale-105  hover:shadow-2xl hover:shadow-black/50
         cursor-pointer
       "
     >
@@ -42,7 +43,7 @@ export function MovieCard({
           className="object-cover"
           sizes="
             (max-width: 640px) 72vw,
-            (max-width: 1024px) 280px,
+            (max-width: 1024px) 300px,
             240px
           "
           priority={false}
@@ -53,13 +54,13 @@ export function MovieCard({
       {(duration || views) && (
         <div className="flex justify-between text-xs sm:text-sm">
           {duration && (
-            <span className="px-2 py-1 bg-neutral-900 rounded-full text-neutral-400">
-              {duration}
+            <span className="px-2 py-1 bg-neutral-900 rounded-full text-neutral-400 flex items-center gap-2">
+              <Clock /> {duration}
             </span>
           )}
           {views && (
-            <span className="px-2 py-1 bg-neutral-900 rounded-full text-neutral-400">
-              {views}
+            <span className="px-2 py-1 bg-neutral-900 rounded-full text-neutral-400 flex items-center gap-2">
+              <Eye /> {views}
             </span>
           )}
         </div>
