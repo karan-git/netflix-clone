@@ -28,7 +28,7 @@ export function MovieCard({
         p-3 sm:p-4
         flex flex-col gap-3 sm:gap-4
         transition-all duration-300 ease-in-out
-        hover:scale-105 hover:shadow-2xl hover:shadow-black/50
+        hover:scale-102 hover:shadow-2xl hover:shadow-black/50
       "
     >
       {/* IMAGE */}
