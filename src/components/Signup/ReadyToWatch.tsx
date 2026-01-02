@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import { useSignup } from "@/hooks/useAuth";
 import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -35,6 +34,8 @@ import { Button } from "@/components/Common/Button";
 import { Input } from "@/components/Common/Input";
 
 import { AuthResponse } from "@/types/auth";
+
+import { AuthFormLayout } from "@/components/Common/AuthFormLayout";
 
 export default function ReadyToWatch({
   onNextStep,
@@ -96,51 +97,32 @@ export default function ReadyToWatch({
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 text-white flex flex-col">
-      {/* ================= CTA SECTION ================= */}
-      <section className="flex flex-col items-center justify-center px-6 py-24">
-        {/* Logo */}
-        <div className="relative mb-10">
-          <div className="w-28 h-28 rounded-full border-4 border-pink-400 bg-black/30 shadow-lg" />
-          <Image
-            width={99}
-            height={72}
-            src="/images/logo.png"
-            alt="Logo"
-            className="absolute inset-0 m-auto w-24 h-20"
+    <AuthFormLayout
+      title="Ready to watch?"
+      subtitle="Enter your email to create or sign in to your account."
+    >
+      {/* Form */}
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleSubmit(onSubmit)(e);
+        }}
+        className="w-full max-w-xl space-y-4"
+      >
+        {(authError || error) && (
+          <Alert
+            type="error"
+            message={
+              (authError as any)?.response?.data?.message ||
+              error ||
+              "Signup failed. Please try again."
+            }
           />
-        </div>
+        )}
 
-        <h1 className="text-3xl sm:text-5xl font-semibold mb-4">
-          Ready to watch?
-        </h1>
-
-        <p className="text-neutral-300 text-base sm:text-xl mb-10 max-w-xl">
-          Enter your email to create or sign in to your account.
-        </p>
-
-        {/* Form */}
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSubmit(onSubmit)(e);
-          }}
-          className="w-full max-w-xl space-y-4"
-        >
-          {(authError || error) && (
-            <Alert
-              type="error"
-              message={
-                (authError as any)?.response?.data?.message ||
-                error ||
-                "Signup failed. Please try again."
-              }
-            />
-          )}
-
-          <div className="flex flex-col sm:flex-row gap-4">
-            {/* Country Selection */}
-            {/* <div className="w-full sm:w-1/3">
+        <div className="flex flex-col sm:flex-row gap-4">
+          {/* Country Selection */}
+          {/* <div className="w-full sm:w-1/3">
               <label className="block text-left text-sm text-zinc-300 mb-2">
                 Country
               </label>
@@ -163,28 +145,27 @@ export default function ReadyToWatch({
               )}
             </div> */}
 
-            {/* Email Input */}
-            <Input
-              label="Email"
-              type="email"
-              placeholder="XYZ@gmail.com"
-              className="h-14 rounded-xl bg-transparent border-neutral-400 text-white placeholder-neutral-500 focus:ring-cyan-400"
-              error={errors.email?.message}
-              {...register("email")}
-            />
-          </div>
+          {/* Email Input */}
+          <Input
+            label="Email"
+            type="email"
+            placeholder="XYZ@gmail.com"
+            className="h-14 rounded-xl bg-transparent border-neutral-400 text-white placeholder-neutral-500 focus:ring-cyan-400"
+            error={errors.email?.message}
+            {...register("email")}
+          />
+        </div>
 
-          {/* CTA Button */}
-          <Button
-            type="submit"
-            isLoading={isPending}
-            variant="primary"
-            className="mt-12"
-          >
-            Get Started
-          </Button>
-        </form>
-      </section>
-    </div>
+        {/* CTA Button */}
+        <Button
+          type="submit"
+          isLoading={isPending}
+          variant="primary"
+          className="mt-12"
+        >
+          Get Started
+        </Button>
+      </form>
+    </AuthFormLayout>
   );
 }

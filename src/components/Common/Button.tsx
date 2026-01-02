@@ -28,7 +28,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
   ) => {
     const variants = {
       primary:
-        "bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 text-white font-semibold w-full h-14 rounded-full",
+        "bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 text-white font-semibold w-full h-12 sm:h-14 rounded-full",
       secondary:
         "bg-green-600 hover:bg-green-700 text-white border-transparent focus:ring-green-500",
       outline:
@@ -42,7 +42,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
     const sizes = {
       sm: "py-1 px-3 text-xs",
       md: "py-2 px-4 text-sm",
-      lg: "py-3 px-6 text-xl",
+      lg: "py-2.5 sm:py-3 px-5 sm:px-6 text-lg sm:text-xl",
     };
 
     return (

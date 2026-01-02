@@ -29,16 +29,20 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col">
+    <div className="min-h-screen bg-gray-900 flex flex-col px-4 sm:px-6 lg:px-8">
       {/* Main Section */}
-      <div className="flex flex-col items-center pt-32 pb-24">
-        <h1 className="text-white text-5xl font-semibold">Welcome</h1>
-        <p className="text-white text-xl mt-3">Sign In to Continue</p>
+      <div className="flex flex-col items-center pt-20 sm:pt-32 pb-12 sm:pb-24 w-full max-w-md mx-auto">
+        <h1 className="text-white text-3xl sm:text-5xl font-semibold text-center">
+          Welcome
+        </h1>
+        <p className="text-white text-lg sm:text-xl mt-3 text-center">
+          Sign In to Continue
+        </p>
 
         {/* Form */}
         <form
           onSubmit={handleSubmit(onSubmit)}
-          className="mt-12 w-full max-w-md space-y-6"
+          className="mt-8 sm:mt-12 w-full space-y-6"
         >
           {authError && (
             <Alert
@@ -98,35 +102,44 @@ export default function LoginPage() {
         <div className="mt-8 text-neutral-500 font-semibold">OR</div>
 
         {/* Social Buttons */}
-        <Button
-          variant="custom"
-          className="mt-6 w-80 h-12 text-md rounded-full border border-neutral-200"
-          size="md"
-          leftIcon={
-            <Image
-              src="/images/google.png"
-              alt="Google"
-              width={20}
-              height={20}
-            />
-          }
-        >
-          <span className="text-white font-semibold">Sign in with Google</span>
-        </Button>
+        <div className="w-full space-y-4 mt-6">
+          <Button
+            variant="custom"
+            className="w-full h-12 text-md rounded-full border border-neutral-200"
+            size="md"
+            leftIcon={
+              <Image
+                src="/images/google.png"
+                alt="Google"
+                width={20}
+                height={20}
+              />
+            }
+          >
+            <span className="text-white font-semibold">
+              Sign in with Google
+            </span>
+          </Button>
 
-        <Button
-          variant="custom"
-          className="mt-4 w-80 h-12 text-md rounded-full border border-neutral-200"
-          size="md"
-          leftIcon={
-            <Image src="/images/apple.png" alt="Apple" width={20} height={20} />
-          }
-        >
-          <span className="text-white font-semibold">Sign in with Apple</span>
-        </Button>
+          <Button
+            variant="custom"
+            className="w-full h-12 text-md rounded-full border border-neutral-200"
+            size="md"
+            leftIcon={
+              <Image
+                src="/images/apple.png"
+                alt="Apple"
+                width={20}
+                height={20}
+              />
+            }
+          >
+            <span className="text-white font-semibold">Sign in with Apple</span>
+          </Button>
+        </div>
 
         {/* Signup */}
-        <div className="mt-10 flex gap-2 text-stone-300">
+        <div className="mt-10 flex gap-2 text-stone-300 text-sm sm:text-base">
           <p>You don’t have an account?</p>
           <Link href="/signup" className="text-teal-500 font-bold">
             Sign Up

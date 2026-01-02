@@ -63,7 +63,7 @@ const DUMMY_MOVIE_DATA = {
 export default function MovieDetailsPage({
   params,
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
   return (
     <div className="min-h-screen bg-neutral-900 text-white font-manrope">
@@ -71,7 +71,7 @@ export default function MovieDetailsPage({
 
       <HeroCarousel slides={DUMMY_SLIDES} />
 
-      <section className="max-w-[90vw] mx-auto px-6 grid grid-cols-1 lg:grid-cols-3 gap-8 mt-12 mb-12 mx-12">
+      <section className="mx-auto px-4 sm:px-6 md:px-12 grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8 sm:mt-12 mb-12">
         <div className="lg:col-span-2 space-y-8">
           <SeasonsAndEpisodes
             seasons={[
@@ -118,13 +118,13 @@ export default function MovieDetailsPage({
           ratings={DUMMY_MOVIE_DATA.ratings}
         />
       </section>
-      <div className="px-12 pr-0 mb-12">
+      <div className="mb-12 px-4 sm:px-6 md:px-12">
         <MovieRow
           title="Recommended"
           items={Array(8).fill({
             image: "/images/movie.png",
             footer: (
-              <div className="text-center text-neutral-400">
+              <div className="text-center text-neutral-400 text-sm">
                 Released at{" "}
                 <span className="text-stone-300">14 April 2023</span>
               </div>

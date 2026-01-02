@@ -29,3 +29,27 @@ export interface SignupRequest {
   name?: string;
   country: string;
 }
+
+export interface ValidateResetTokenResponse {
+  status: boolean;
+  message: string;
+}
+
+export interface SetPasswordRequest {
+  newPassword: string;
+}
+
+export interface SetPasswordResponse {
+  status: boolean;
+  message: string;
+  user: User;
+}
+
+export interface ForgotPasswordRequest {
+  email: string;
+}
+
+export interface ForgotPasswordResponse {
+  status: boolean;
+  message: string;
+}

@@ -9,8 +9,7 @@ function getVisibleCount(width: number) {
   if (width >= 1280) return 5;
   if (width >= 1024) return 4;
   if (width >= 768) return 3;
-  if (width >= 640) return 2;
-  return 1.25; // mobile peek
+  return 2; // mobile peek
 }
 
 export function MovieRow({
@@ -34,7 +33,7 @@ export function MovieRow({
     return () => window.removeEventListener("resize", update);
   }, []);
 
-  const step = Math.floor(visible);
+  const step = visible;
   const totalPages = Math.max(1, Math.ceil(items.length / step));
   const maxPage = totalPages - 1;
 
@@ -42,34 +41,33 @@ export function MovieRow({
   const next = () => setPage((p) => Math.min(p + 1, maxPage));
 
   return (
-    <section className="mt-16">
+    <section className="mt-8 sm:mt-12 md:mt-16">
       {/* HEADER */}
-      <div className="flex justify-between items-center mb-6 mr-12">
-        <h2 className="text-white text-2xl sm:text-3xl lg:text-4xl font-bold">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h2 className="text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
           {title}
         </h2>
 
-        <div className="flex items-center gap-3 bg-neutral-800">
+        <div className="flex items-center gap-2 sm:gap-3 bg-neutral-800 rounded-lg p-1">
           <Button
             variant="custom"
             onClick={prev}
             disabled={page === 0}
-            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700 border-none shadow-none"
+            className="p-1.5 sm:p-2 md:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700 border-none shadow-none"
           >
-            <ChevronLeft />
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           </Button>
 
-          {/* DOTS */}
-          <div className="flex items-center gap-2">
+          {/* DOTS (Hidden on very small screens) */}
+          <div className="hidden sm:flex items-center gap-1.5 sm:gap-2">
             {Array.from({ length: totalPages }).map((_, i) => (
-              <Button
+              <div
                 key={i}
-                variant="custom"
                 onClick={() => setPage(i)}
-                className={`h-2 rounded-full transition-all border-none shadow-none p-0 ${
+                className={`h-1.5 sm:h-2 rounded-full cursor-pointer transition-all border-none shadow-none p-0 ${
                   page === i
-                    ? "w-6 bg-[#25A4AD]"
-                    : "w-2 bg-white/40 hover:bg-white/60"
+                    ? "w-4 sm:w-6 bg-[#25A4AD]"
+                    : "w-1.5 sm:w-2 bg-white/40 hover:bg-white/60"
                 }`}
               />
             ))}
@@ -79,9 +77,9 @@ export function MovieRow({
             variant="custom"
             onClick={next}
             disabled={page === maxPage}
-            className="p-2 sm:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700 border-none shadow-none"
+            className="p-1.5 sm:p-2 md:p-3 rounded-lg text-white disabled:opacity-40 hover:bg-neutral-700 border-none shadow-none"
           >
-            <ChevronRight />
+            <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 md:w-6 md:h-6" />
           </Button>
         </div>
       </div>
@@ -91,12 +89,27 @@ export function MovieRow({
         <div
           className="flex gap-4 sm:gap-6 transition-transform duration-500 ease-out"
           style={{
-            transform: `translateX(-${(page * 100) / visible}%)`,
+            transform: `translateX(calc(-${page} * (100% + var(--gap, 16px))))`,
           }}
         >
-          {items.map((item, i) => (
-            <MovieCard key={i} id={item.id || i} {...item} />
-          ))}
+          {items.map((item, i) => {
+            const gap =
+              typeof window !== "undefined" && window.innerWidth >= 640
+                ? 24
+                : 16;
+            return (
+              <div
+                key={i}
+                className="flex-shrink-0"
+                style={{
+                  width: `calc((100% - ${(visible - 1) * gap}px) / ${visible})`,
+                  ["--gap" as any]: `${gap}px`,
+                }}
+              >
+                <MovieCard id={item.id || i} {...item} />
+              </div>
+            );
+          })}
         </div>
       </div>
     </section>

@@ -1,15 +1,15 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+const publicRoutes = ["/login", "/signup", "/"];
+const protectedRoutes = ["/home", "/profile"];
 export function proxy(request: NextRequest) {
   const token = request.cookies.get("token")?.value;
   const { pathname } = request.nextUrl;
 
   // Define public and protected routes
-  const isPublicRoute =
-    pathname === "/login" || pathname === "/signup" || pathname === "/";
-  const isProtectedRoute =
-    pathname.startsWith("/home") || pathname.startsWith("/profile");
+  const isPublicRoute = publicRoutes.includes(pathname);
+  const isProtectedRoute = protectedRoutes.includes(pathname);
 
   // If authenticated and trying to access public auth routes, redirect to home
   if (token && isPublicRoute) {

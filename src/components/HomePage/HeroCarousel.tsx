@@ -57,7 +57,7 @@ export function HeroCarousel({
 
   return (
     <section
-      className="relative mx-12 mt-12 h-[720px] rounded-xl overflow-hidden"
+      className="relative mx-4 sm:mx-6 md:mx-12 mt-6 sm:mt-12 h-[500px] sm:h-[600px] md:h-[720px] rounded-xl overflow-hidden"
       onMouseEnter={stopAutoplay}
       onMouseLeave={startAutoplay}
     >
@@ -96,30 +96,34 @@ export function HeroCarousel({
             />
 
             {/* CONTENT */}
-            <div className="absolute inset-0 flex flex-col items-center justify-end pb-24 px-6 text-center z-10">
-              <h1 className="text-white text-4xl font-bold">{slide.title}</h1>
+            <div className="absolute inset-0 flex flex-col items-center justify-end pb-16 sm:pb-24 px-4 sm:px-6 text-center z-10">
+              <h1 className="text-white text-2xl sm:text-3xl md:text-4xl font-bold">
+                {slide.title}
+              </h1>
 
-              <p className="mt-4 max-w-3xl text-neutral-300">
+              <p className="mt-2 sm:mt-4 max-w-3xl text-neutral-300 text-sm sm:text-base md:text-lg line-clamp-3 sm:line-clamp-none">
                 {slide.description}
               </p>
 
-              <div className="mt-8 flex items-center gap-4">
+              <div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-4 flex-wrap justify-center">
                 <Button
                   variant="custom"
-                  className="flex items-center gap-2 px-6 py-3 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 rounded-lg text-white font-semibold border-none shadow-none"
+                  className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 rounded-lg text-white font-semibold border-none shadow-none text-sm sm:text-base"
                 >
                   ▶ Play Now
                 </Button>
 
-                <IconButton>
-                  <Plus />
-                </IconButton>
-                <IconButton>
-                  <ThumbsUp />
-                </IconButton>
-                <IconButton>
-                  <Volume2 />
-                </IconButton>
+                <div className="flex gap-2 sm:gap-4">
+                  <IconButton>
+                    <Plus size={20} />
+                  </IconButton>
+                  <IconButton>
+                    <ThumbsUp size={20} />
+                  </IconButton>
+                  <IconButton>
+                    <Volume2 size={20} />
+                  </IconButton>
+                </div>
               </div>
             </div>
           </div>
@@ -130,28 +134,29 @@ export function HeroCarousel({
       <Button
         variant="custom"
         onClick={prev}
-        className="absolute left-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-3 rounded-full hover:bg-black/70 border-none shadow-none"
+        className="absolute left-2 sm:left-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-2 sm:p-3 rounded-full hover:bg-black/70 border-none shadow-none hidden sm:flex"
       >
-        <ChevronLeft className="text-white" />
+        <ChevronLeft className="text-white w-5 h-5 sm:w-6 sm:h-6" />
       </Button>
 
       <Button
         variant="custom"
         onClick={next}
-        className="absolute right-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-3 rounded-full hover:bg-black/70 border-none shadow-none"
+        className="absolute right-2 sm:right-6 top-1/2 -translate-y-1/2 z-20 bg-black/50 p-2 sm:p-3 rounded-full hover:bg-black/70 border-none shadow-none hidden sm:flex"
       >
-        <ChevronRight className="text-white" />
+        <ChevronRight className="text-white w-5 h-5 sm:w-6 sm:h-6" />
       </Button>
 
       {/* DOTS */}
-      <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-3 z-20">
+      <div className="absolute bottom-4 sm:bottom-6 left-0 right-0 flex justify-center gap-2 sm:gap-3 z-20">
         {slides.map((_, index) => (
-          <Button
+          <div
             key={index}
-            variant="custom"
             onClick={() => setCurrent(index)}
-            className={`h-2 rounded-full transition-all border-none shadow-none p-0 ${
-              current === index ? "w-8 bg-[#25A4AD]" : "w-2 bg-white/40"
+            className={`h-1.5 sm:h-2 rounded-full cursor-pointer transition-all border-none shadow-none p-0 ${
+              current === index
+                ? "w-6 sm:w-8 bg-[#25A4AD]"
+                : "w-1.5 sm:w-2 bg-white/40"
             }`}
           />
         ))}

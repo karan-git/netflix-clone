@@ -62,13 +62,13 @@ export default function WhosWatching() {
       <div className="border-b border-neutral-800" />
 
       {/* Main content */}
-      <div className="flex-1 flex flex-col items-center justify-center py-20">
-        <h1 className="text-white text-5xl font-bold mb-20 tracking-tight">
+      <div className="flex-1 flex flex-col items-center justify-center py-12 sm:py-20">
+        <h1 className="text-white text-3xl sm:text-5xl font-bold mb-12 sm:mb-20 tracking-tight text-center px-4">
           Who’s watching?
         </h1>
 
         {/* Profiles */}
-        <div className="flex flex-wrap gap-16 items-start justify-center max-w-6xl px-6">
+        <div className="flex flex-wrap gap-8 sm:gap-16 items-start justify-center max-w-6xl px-4 sm:px-6">
           {profiles.map((profile) => (
             <div
               key={profile.id}
@@ -76,7 +76,7 @@ export default function WhosWatching() {
               onClick={() => router.push("/home")}
             >
               <div
-                className={`w-44 h-44 rounded-[45px] overflow-hidden flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-teal-500/20 ${
+                className={`w-32 h-32 sm:w-44 sm:h-44 rounded-[30px] sm:rounded-[45px] overflow-hidden flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-teal-500/20 ${
                   profile.isImage ? "" : `bg-gradient-to-br ${profile.avatar}`
                 }`}
               >
@@ -87,10 +87,13 @@ export default function WhosWatching() {
                     alt={profile.name}
                   />
                 ) : (
-                  <User size={60} className="text-white/90" />
+                  <User
+                    size={40}
+                    className="text-white/90 sm:w-[60px] sm:h-[60px]"
+                  />
                 )}
               </div>
-              <p className="mt-6 text-zinc-400 text-2xl font-bold group-hover:text-white transition-colors">
+              <p className="mt-4 sm:mt-6 text-zinc-400 text-lg sm:text-2xl font-bold group-hover:text-white transition-colors">
                 {profile.name}
               </p>
             </div>
@@ -101,13 +104,13 @@ export default function WhosWatching() {
             className="flex flex-col items-center group cursor-pointer"
             onClick={() => setIsModalOpen(true)}
           >
-            <div className="w-44 h-44 rounded-[45px] bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/30 group-hover:scale-105">
+            <div className="w-32 h-32 sm:w-44 sm:h-44 rounded-[30px] sm:rounded-[45px] bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/30 group-hover:scale-105">
               <Plus
-                size={60}
-                className="text-white/30 group-hover:text-white/60"
+                size={40}
+                className="text-white/30 group-hover:text-white/60 sm:w-[60px] sm:h-[60px]"
               />
             </div>
-            <p className="mt-6 text-zinc-500 text-2xl font-bold group-hover:text-white transition-colors">
+            <p className="mt-4 sm:mt-6 text-zinc-500 text-lg sm:text-2xl font-bold group-hover:text-white transition-colors">
               Add Profile
             </p>
           </div>
@@ -124,24 +127,29 @@ export default function WhosWatching() {
           />
 
           {/* Modal Content */}
-          <div className="relative z-10 w-full max-w-xl bg-zinc-900 border border-white/10 rounded-[40px] p-12 shadow-2xl">
-            <div className="flex justify-between items-center mb-10">
-              <h2 className="text-3xl font-bold text-white">Add Profile</h2>
+          <div className="relative z-10 w-full max-w-xl bg-zinc-900 border border-white/10 rounded-[30px] sm:rounded-[40px] p-6 sm:p-12 shadow-2xl overflow-y-auto max-h-[90vh]">
+            <div className="flex justify-between items-center mb-6 sm:mb-10">
+              <h2 className="text-2xl sm:text-3xl font-bold text-white">
+                Add Profile
+              </h2>
               <button
                 onClick={() => setIsModalOpen(false)}
                 className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
               >
-                <X size={24} className="text-zinc-400" />
+                <X size={20} className="text-zinc-400 sm:w-6 sm:h-6" />
               </button>
             </div>
 
-            <div className="space-y-10">
+            <div className="space-y-6 sm:space-y-10">
               {/* Avatar Preview */}
               <div className="flex justify-center">
                 <div
-                  className={`w-40 h-40 rounded-[40px] bg-gradient-to-br ${selectedColor} flex items-center justify-center shadow-2xl shadow-teal-500/20`}
+                  className={`w-32 h-32 sm:w-40 sm:h-40 rounded-[30px] sm:rounded-[40px] bg-gradient-to-br ${selectedColor} flex items-center justify-center shadow-2xl shadow-teal-500/20`}
                 >
-                  <User size={60} className="text-white" />
+                  <User
+                    size={40}
+                    className="text-white sm:w-[60px] sm:h-[60px]"
+                  />
                 </div>
               </div>
 
@@ -152,28 +160,28 @@ export default function WhosWatching() {
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
                 placeholder="Enter name"
-                className="h-16 bg-white/5 border-white/10 rounded-2xl px-6 text-xl text-white focus:border-teal-500 placeholder:text-zinc-600"
+                className="h-14 sm:h-16 bg-white/5 border-white/10 rounded-2xl px-4 sm:px-6 text-lg sm:text-xl text-white focus:border-teal-500 placeholder:text-zinc-600"
                 autoFocus
               />
 
               {/* Color Selection */}
               <div className="">
-                <label className="text-zinc-400 text-lg font-medium ml-2">
+                <label className="text-zinc-400 text-base sm:text-lg font-medium ml-2">
                   Choose Avatar Color
                 </label>
-                <div className="flex gap-4 justify-between mt-4">
+                <div className="flex gap-2 sm:gap-4 justify-between mt-3 sm:mt-4 overflow-x-auto pb-2">
                   {AVATAR_COLORS.map((color) => (
                     <button
                       key={color}
                       onClick={() => setSelectedColor(color)}
-                      className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 ${
+                      className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0 ${
                         selectedColor === color
-                          ? "ring-4 ring-white ring-offset-4 ring-offset-zinc-900 scale-110"
+                          ? "ring-2 sm:ring-4 ring-white ring-offset-2 sm:ring-offset-4 ring-offset-zinc-900 scale-110"
                           : ""
                       }`}
                     >
                       {selectedColor === color && (
-                        <Check size={24} className="text-white" />
+                        <Check size={18} className="text-white sm:w-6 sm:h-6" />
                       )}
                     </button>
                   ))}
@@ -184,7 +192,7 @@ export default function WhosWatching() {
               <Button
                 onClick={handleAddProfile}
                 disabled={!newName.trim()}
-                className="w-full h-16 rounded-2xl text-xl font-bold mt-4"
+                className="w-full h-14 sm:h-16 rounded-2xl text-lg sm:text-xl font-bold mt-2 sm:mt-4"
               >
                 Add Profile
               </Button>

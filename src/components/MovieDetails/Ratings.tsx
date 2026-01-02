@@ -30,11 +30,17 @@ export function Ratings({ ratings }: { ratings: Rating[] }) {
 
 function RatingCard({ title, value }: { title?: string; value: number }) {
   return (
-    <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-4">
-      {title && <p className="text-lg font-semibold mb-2">{title}</p>}
-      <div className="flex items-center gap-2">
+    <div className="bg-neutral-900 border border-neutral-800 rounded-lg p-3 sm:p-4">
+      {title && (
+        <p className="text-base sm:text-lg font-semibold mb-1 sm:mb-2">
+          {title}
+        </p>
+      )}
+      <div className="flex items-center gap-1.5 sm:gap-2">
         <StarRating value={value} />
-        <span className="text-lg font-medium">{value.toFixed(1)}</span>
+        <span className="text-base sm:text-lg font-medium">
+          {value.toFixed(1)}
+        </span>
       </div>
     </div>
   );

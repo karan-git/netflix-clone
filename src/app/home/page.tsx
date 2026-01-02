@@ -26,7 +26,7 @@ export default function HomePage() {
         ]}
       />
 
-      <div className="px-12 pr-0 mb-12">
+      <div className="sm:px-12 px-4 mb-12">
         <MovieRow
           title="Top 10 Trending"
           items={Array(8).fill({
@@ -41,7 +41,7 @@ export default function HomePage() {
           items={Array(8).fill({
             image: "/images/movie.png",
             footer: (
-              <div className="text-center text-neutral-400">
+              <div className="text-neutral-400 text-xs sm:text-lg">
                 Released at{" "}
                 <span className="text-stone-300">14 April 2023</span>
               </div>

@@ -44,27 +44,26 @@ export function CastSection({ cast }: CastSectionProps) {
   const next = () => setPage((p) => Math.min(p + 1, maxPage));
 
   return (
-    <div className="bg-zinc-900 p-8 rounded-xl border border-neutral-800">
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-neutral-400">Cast</h3>
-        <div className="flex items-center gap-3 bg-stone-950 p-2 rounded-lg border border-neutral-800">
+    <div className="bg-zinc-900 p-4 sm:p-6 md:p-8 rounded-xl border border-neutral-800">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h3 className="text-neutral-400 text-sm sm:text-base">Cast</h3>
+        <div className="flex items-center gap-2 sm:gap-3 p-1.5 sm:p-2 rounded-lg">
           <Button
             variant="custom"
             onClick={prev}
             disabled={page === 0}
-            className="p-2 rounded-full border border-neutral-800 hover:bg-zinc-800 transition-colors disabled:opacity-40"
+            className="p-2 sm:p-3 rounded-full border border-neutral-800 bg-stone-950 hover:bg-zinc-800 transition-colors disabled:opacity-40"
           >
-            <ChevronLeft size={20} />
+            <ChevronLeft size={18} className="sm:w-5 sm:h-5" />
           </Button>
 
-          {/* DOTS */}
-          <div className="flex items-center gap-2">
+          {/* DOTS (Hidden on very small screens) */}
+          <div className="hidden sm:flex items-center gap-1.5 sm:gap-2">
             {Array.from({ length: totalPages }).map((_, i) => (
-              <Button
+              <div
                 key={i}
-                variant="custom"
                 onClick={() => setPage(i)}
-                className={`h-1.5 rounded-full transition-all border-none shadow-none p-0 ${
+                className={`h-1.5 rounded-full cursor-pointer transition-all border-none shadow-none p-0 ${
                   page === i
                     ? "w-4 bg-[#25A4AD]"
                     : "w-1.5 bg-white/40 hover:bg-white/60"
@@ -77,37 +76,44 @@ export function CastSection({ cast }: CastSectionProps) {
             variant="custom"
             onClick={next}
             disabled={page === maxPage}
-            className="p-2 rounded-full border border-neutral-800 hover:bg-zinc-800 transition-colors disabled:opacity-40"
+            className="p-2 sm:p-3 rounded-full border border-neutral-800 bg-stone-950 hover:bg-zinc-800 transition-colors disabled:opacity-40"
           >
-            <ChevronRight size={20} />
+            <ChevronRight size={18} className="sm:w-5 sm:h-5" />
           </Button>
         </div>
       </div>
 
       <div className="relative overflow-hidden">
         <div
-          className="flex gap-4 transition-transform duration-500 ease-out"
+          className="flex gap-3 sm:gap-4 transition-transform duration-500 ease-out"
           style={{
-            transform: `translateX(-${(page * 100) / visible}%)`,
+            transform: `translateX(calc(-${page} * (100% + var(--gap, 12px))))`,
           }}
         >
-          {cast.map((member, i) => (
-            <div
-              key={i}
-              className="flex-shrink-0"
-              style={{
-                width: `calc((100% - ${(visible - 1) * 16}px) / ${visible})`,
-              }}
-            >
-              <Image
-                width={100}
-                height={100}
-                src={member.image}
-                alt={member.name}
-                className="rounded-xl w-full h-auto object-cover "
-              />
-            </div>
-          ))}
+          {cast.map((member, i) => {
+            const gap =
+              typeof window !== "undefined" && window.innerWidth < 640
+                ? 12
+                : 16;
+            return (
+              <div
+                key={i}
+                className="flex-shrink-0"
+                style={{
+                  width: `calc((100% - ${(visible - 1) * gap}px) / ${visible})`,
+                  ["--gap" as any]: `${gap}px`,
+                }}
+              >
+                <Image
+                  width={100}
+                  height={100}
+                  src={member.image}
+                  alt={member.name}
+                  className="rounded-lg sm:rounded-xl w-full h-auto object-cover"
+                />
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

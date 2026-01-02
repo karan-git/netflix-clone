@@ -84,23 +84,26 @@ export default function Carousel({
           >
             {/* Image */}
             {slide.image && (
-              <Image
-                src={slide.image}
-                width={400}
-                height={400}
-                alt={slide.title || ""}
-                className="object-contain"
-              />
+              <div className="relative w-full max-w-[300px] sm:max-w-[400px] aspect-square">
+                <Image
+                  src={slide.image}
+                  fill
+                  alt={slide.title || ""}
+                  className="object-contain"
+                />
+              </div>
             )}
 
             {/* Title */}
             {slide.title && (
-              <h2 className="text-white text-5xl font-bold">{slide.title}</h2>
+              <h2 className="text-white text-3xl sm:text-5xl font-bold mt-4 sm:mt-0">
+                {slide.title}
+              </h2>
             )}
 
             {/* Subtitle */}
             {slide.subtitle && (
-              <p className="mt-2 text-white/80 text-3xl max-w-2xl mt-[20px]">
+              <p className="mt-2 text-white/80 text-lg sm:text-3xl max-w-2xl mt-[10px] sm:mt-[20px]">
                 {slide.subtitle}
               </p>
             )}
@@ -109,7 +112,7 @@ export default function Carousel({
             {index === slides.length - 1 && (
               <Button
                 variant="custom"
-                className="mt-10 px-8 py-4 rounded-full bg-gradient-to-r from-teal-400 to-cyan-500 font-semibold text-lg border-none shadow-none"
+                className="mt-6 sm:mt-10 px-8 py-3 sm:py-4 rounded-full bg-gradient-to-r from-teal-400 to-cyan-500 font-semibold text-base sm:text-lg border-none shadow-none"
                 onClick={onFinish}
               >
                 Get Started
@@ -124,9 +127,15 @@ export default function Carousel({
         <Button
           variant="custom"
           onClick={prevSlide}
-          className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60 border-none shadow-none p-0"
+          className="absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60 border-none shadow-none p-0 w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center"
         >
-          <Image src="/images/left-arrow.png" width={60} height={60} alt="" />
+          <Image
+            src="/images/left-arrow.png"
+            width={30}
+            height={30}
+            alt=""
+            className="w-6 h-6 sm:w-8 sm:h-8"
+          />
         </Button>
       )}
 
@@ -135,9 +144,15 @@ export default function Carousel({
         <Button
           variant="custom"
           onClick={nextSlide}
-          className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60 border-none shadow-none p-0"
+          className="absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 z-20 bg-black/40 rounded-full hover:bg-black/60 border-none shadow-none p-0 w-10 h-10 sm:w-14 sm:h-14 flex items-center justify-center"
         >
-          <Image src="/images/right-arrow.png" width={60} height={60} alt="" />
+          <Image
+            src="/images/right-arrow.png"
+            width={30}
+            height={30}
+            alt=""
+            className="w-6 h-6 sm:w-8 sm:h-8"
+          />
         </Button>
       )}
 

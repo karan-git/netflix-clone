@@ -74,9 +74,11 @@ function InfoBlock({
   children?: React.ReactNode;
 }) {
   return (
-    <div className="bg-zinc-900 p-6 rounded-xl border border-neutral-800">
-      <h4 className="text-neutral-400 mb-3">{title}</h4>
-      {value && <p className="text-xl font-semibold">{value}</p>}
+    <div className="bg-zinc-900 p-4 sm:p-6 rounded-xl border border-neutral-800">
+      <h4 className="text-neutral-400 text-sm sm:text-base mb-2 sm:mb-3">
+        {title}
+      </h4>
+      {value && <p className="text-lg sm:text-xl font-semibold">{value}</p>}
       {children && <div className="flex flex-wrap gap-2">{children}</div>}
     </div>
   );

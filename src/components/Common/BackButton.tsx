@@ -11,7 +11,7 @@ interface BackButtonProps {
   onClick?: () => void;
 }
 
-export function BackButton({ className, size = 40, onClick }: BackButtonProps) {
+export function BackButton({ className, size = 24, onClick }: BackButtonProps) {
   const router = useRouter();
 
   const handleClick = () => {
@@ -26,14 +26,14 @@ export function BackButton({ className, size = 40, onClick }: BackButtonProps) {
     <button
       onClick={handleClick}
       className={cn(
-        "p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group flex items-center justify-center",
+        "p-1.5 sm:p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors cursor-pointer group flex items-center justify-center",
         className
       )}
       aria-label="Go back"
     >
       <ArrowLeft
         size={size}
-        className="text-zinc-400 group-hover:text-white transition-colors"
+        className="text-zinc-400 group-hover:text-white transition-colors sm:w-[28px] sm:h-[28px]"
       />
     </button>
   );
