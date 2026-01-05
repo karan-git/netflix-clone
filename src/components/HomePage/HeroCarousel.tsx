@@ -10,11 +10,15 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
+import { VideoPlayer } from "@/components/Common/VideoPlayer";
 
 interface HeroSlide {
+  id: string | number;
   image: string;
   title: string;
   description: string;
+  videoUrl?: string;
+  subtitleUrl?: string;
 }
 
 interface HeroCarouselProps {
@@ -29,6 +33,7 @@ export function HeroCarousel({
   interval = 3000,
 }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
+  const [activeVideo, setActiveVideo] = useState<HeroSlide | null>(null);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const prev = () =>
@@ -108,6 +113,7 @@ export function HeroCarousel({
               <div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-4 flex-wrap justify-center">
                 <Button
                   variant="custom"
+                  onClick={() => setActiveVideo(slide)}
                   className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 rounded-lg text-white font-semibold border-none shadow-none text-sm sm:text-base"
                 >
                   ▶ Play Now
@@ -161,6 +167,17 @@ export function HeroCarousel({
           />
         ))}
       </div>
+
+      {/* VIDEO PLAYER OVERLAY */}
+      {activeVideo && activeVideo.videoUrl && (
+        <VideoPlayer
+          url={activeVideo.videoUrl}
+          title={activeVideo.title}
+          subtitleUrl={activeVideo.subtitleUrl}
+          movieId={activeVideo.id}
+          onClose={() => setActiveVideo(null)}
+        />
+      )}
     </section>
   );
 }

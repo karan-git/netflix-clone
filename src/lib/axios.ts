@@ -1,6 +1,8 @@
+"use client";
 import axios from "axios";
 import Cookies from "js-cookie";
-
+import { useToast } from "@/context/ToastContext";
+const { showToast } = useToast();
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://api.example.com", // Dummy URL
   headers: {
@@ -18,6 +20,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
+    console.log("Request Error", error);
     return Promise.reject(error);
   }
 );
@@ -27,7 +30,12 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-
+    console.log("Response Error", error);
+    showToast(
+      error?.data?.response?.message ||
+        "Failed to load profiles. Please try again.",
+      "error"
+    );
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = Cookies.get("refreshToken");
@@ -38,16 +46,15 @@ api.interceptors.response.use(
           const { authService } = await import("@/services/authService");
           const data = await authService.refreshToken(refreshToken);
 
-          if (data.data.accessToken) {
-            if (data.data.accessToken) {
-              Cookies.set("token", data.data.accessToken, { expires: 7 });
-            }
+          if (data.token) {
+            Cookies.set("token", data.token, { expires: 7 });
             api.defaults.headers.common[
               "Authorization"
-            ] = `Bearer ${data.data.accessToken}`;
+            ] = `Bearer ${data.token}`;
             return api(originalRequest);
           }
         } catch (refreshError) {
+          console.log(refreshError);
           // If refresh fails, clear cookies and redirect
           Cookies.remove("token");
           Cookies.remove("refreshToken");

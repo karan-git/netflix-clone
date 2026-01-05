@@ -12,16 +12,22 @@ export default function HomePage() {
         interval={3000}
         slides={[
           {
+            id: "1",
             image: "/images/image.png",
             title: "Avengers : Endgame",
             description:
               "Lorem ipsum dolor sit amet consectetur. Scelerisque diam porta nisi massa etiam.",
+            videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
+            subtitleUrl: "https://test-streams.mux.dev/x36xhzz/subtitles.vtt",
           },
           {
+            id: "2",
             image: "/images/hero-2.jpg",
             title: "Spider-Man : No Way Home",
             description:
               "Eu pellentesque integer dui turpis aliquam sollicitudin consectetur.",
+            videoUrl:
+              "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
           },
         ]}
       />

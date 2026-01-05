@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   CreditCard,
   User,
@@ -28,7 +28,7 @@ type TabId =
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState<TabId>("profile");
+  const [activeTab, setActiveTab] = useState<TabId>("subscription");
   const [notifications, setNotifications] = useState(true);
   const [privateViewing, setPrivateViewing] = useState(false);
 
@@ -40,6 +40,12 @@ export default function ProfilePage() {
     { id: "terms", title: "Terms & Conditions", icon: FileText },
     { id: "history", title: "History", icon: History },
   ];
+
+  useEffect(() => {
+    if (activeTab === "profile") {
+      router.push("/who-is-watching");
+    }
+  }, [activeTab]);
 
   return (
     <div className="relative min-h-screen bg-neutral-900 text-white overflow-hidden font-manrope">

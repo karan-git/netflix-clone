@@ -1,18 +1,20 @@
 "use client";
 
-import React, { useState } from "react";
-import Footer from "@/components/Footer";
-import { Plus, User, X, Check } from "lucide-react";
+import React, { useEffect, useState } from "react";
+import { Plus, User, X, Check, Loader2, Pencil, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Input } from "@/components/Common/Input";
 import { Button } from "@/components/Common/Button";
-
-interface Profile {
-  id: string;
-  name: string;
-  avatar: string; // This will be a gradient class or image path
-  isImage?: boolean;
-}
+import {
+  useProfiles,
+  useCreateProfile,
+  useUpdateProfile,
+  useDeleteProfile,
+} from "@/hooks/useProfile";
+import { Profile } from "@/types/profile";
+import { ConfirmationModal } from "@/components/Common/ConfirmationModal";
+import { ProfileModal } from "@/components/Common/ProfileModal";
+import { useToast } from "@/context/ToastContext";
 
 const AVATAR_COLORS = [
   "from-sky-500 via-cyan-500 to-teal-500",
@@ -24,37 +26,102 @@ const AVATAR_COLORS = [
 
 export default function WhosWatching() {
   const router = useRouter();
-  const [profiles, setProfiles] = useState<Profile[]>([
-    {
-      id: "1",
-      name: "Karan",
-      avatar: "from-sky-500 via-cyan-500 to-teal-500",
-    },
-    {
-      id: "2",
-      name: "Kids",
-      avatar: "/images/kids.png",
-      isImage: true,
-    },
-  ]);
+  const { showToast } = useToast();
+
+  const { data: profileData, isLoading, isError } = useProfiles();
+  const createProfileMutation = useCreateProfile();
+  const updateProfileMutation = useUpdateProfile();
+  const deleteProfileMutation = useDeleteProfile();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newName, setNewName] = useState("");
-  const [selectedColor, setSelectedColor] = useState(AVATAR_COLORS[0]);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [editingProfile, setEditingProfile] = useState<Profile | null>(null);
 
-  const handleAddProfile = () => {
-    if (!newName.trim()) return;
+  // Delete Confirmation State
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [profileToDelete, setProfileToDelete] = useState<string | null>(null);
 
-    const newProfile: Profile = {
-      id: Date.now().toString(),
-      name: newName,
-      avatar: selectedColor,
-    };
+  // useEffect(() => {
+  //   if (isError) {
+  //     showToast("Failed to load profiles. Please try again.", "error");
+  //   }
+  // }, [isError, showToast]);
 
-    setProfiles([...profiles, newProfile]);
-    setNewName("");
-    setIsModalOpen(false);
+  const handleOpenAddModal = () => {
+    setEditingProfile(null);
+    setIsModalOpen(true);
   };
+
+  const handleOpenEditModal = (profile: Profile) => {
+    setEditingProfile(profile);
+    setIsModalOpen(true);
+  };
+
+  const handleSaveProfile = async (data: {
+    name: string;
+    type: "adult" | "kids";
+    imageIndex: number;
+  }) => {
+    try {
+      if (editingProfile) {
+        await updateProfileMutation.mutateAsync({
+          id: editingProfile._id,
+          data,
+        });
+        showToast("Profile updated successfully", "success");
+      } else {
+        await createProfileMutation.mutateAsync(data);
+        showToast("Profile created successfully", "success");
+      }
+      setIsModalOpen(false);
+    } catch (error: any) {
+      console.error("Failed to save profile:", error);
+      showToast(
+        error?.response?.data?.message || "Failed to save profile",
+        "error"
+      );
+    }
+  };
+
+  const handleDeleteClick = (id: string) => {
+    setProfileToDelete(id);
+    setIsDeleteModalOpen(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!profileToDelete) return;
+    try {
+      await deleteProfileMutation.mutateAsync(profileToDelete);
+      showToast("Profile deleted successfully", "success");
+      setIsDeleteModalOpen(false);
+      setProfileToDelete(null);
+      setIsEditMode(false);
+    } catch (error: any) {
+      console.error("Failed to delete profile:", error);
+      showToast(
+        error?.response?.data?.message || "Failed to delete profile",
+        "error"
+      );
+    }
+  };
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-neutral-900 flex items-center justify-center">
+        <Loader2 className="w-12 h-12 text-teal-500 animate-spin" />
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="min-h-screen bg-neutral-900 flex items-center justify-center text-white">
+        <p>Error loading profiles. Please try again later.</p>
+      </div>
+    );
+  }
+
+  const profiles = profileData?.profiles || [];
 
   return (
     <div className="min-h-screen bg-neutral-900 flex flex-col font-manrope">
@@ -68,29 +135,48 @@ export default function WhosWatching() {
         </h1>
 
         {/* Profiles */}
-        <div className="flex flex-wrap gap-8 sm:gap-16 items-start justify-center max-w-6xl px-4 sm:px-6">
+        <div className="flex flex-wrap gap-8 sm:gap-16 items-start justify-center max-w-7xl px-4 sm:px-6">
           {profiles.map((profile) => (
             <div
-              key={profile.id}
-              className="flex flex-col items-center group cursor-pointer"
-              onClick={() => router.push("/home")}
+              key={profile._id}
+              className="flex flex-col items-center group relative"
             >
               <div
-                className={`w-32 h-32 sm:w-44 sm:h-44 rounded-[30px] sm:rounded-[45px] overflow-hidden flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-teal-500/20 ${
-                  profile.isImage ? "" : `bg-gradient-to-br ${profile.avatar}`
-                }`}
+                className={`w-32 h-32 sm:w-44 sm:h-44 rounded-[30px] sm:rounded-[45px] overflow-hidden flex items-center justify-center transition-all duration-300 group-hover:scale-105 group-hover:shadow-2xl group-hover:shadow-teal-500/20 bg-gradient-to-br ${
+                  AVATAR_COLORS[
+                    Math.max(0, (profile.imageIndex || 1) - 1) %
+                      AVATAR_COLORS.length
+                  ]
+                } cursor-pointer`}
+                onClick={() => (isEditMode ? null : router.push("/home"))}
               >
-                {profile.isImage ? (
-                  <img
-                    src={profile.avatar}
-                    className="w-full h-full object-cover"
-                    alt={profile.name}
-                  />
-                ) : (
-                  <User
-                    size={40}
-                    className="text-white/90 sm:w-[60px] sm:h-[60px]"
-                  />
+                <User
+                  size={40}
+                  className="text-white/90 sm:w-[60px] sm:h-[60px]"
+                />
+
+                {/* Edit Overlay */}
+                {isEditMode && (
+                  <div className="absolute inset-0 bg-black/50 h-32 sm:w-44 sm:h-44 rounded-[30px] sm:rounded-[45px] flex items-center justify-center gap-4">
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleOpenEditModal(profile);
+                      }}
+                      className="p-3 rounded-full bg-white/20 hover:bg-white/40 transition-colors cursor-pointer"
+                    >
+                      <Pencil size={24} className="text-white" />
+                    </button>
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteClick(profile._id);
+                      }}
+                      className="p-3 rounded-full bg-red-500/20 hover:bg-red-500/40 transition-colors cursor-pointer"
+                    >
+                      <Trash2 size={24} className="text-red-500" />
+                    </button>
+                  </div>
                 )}
               </div>
               <p className="mt-4 sm:mt-6 text-zinc-400 text-lg sm:text-2xl font-bold group-hover:text-white transition-colors">
@@ -100,109 +186,68 @@ export default function WhosWatching() {
           ))}
 
           {/* Add Profile Button */}
-          <div
-            className="flex flex-col items-center group cursor-pointer"
-            onClick={() => setIsModalOpen(true)}
-          >
-            <div className="w-32 h-32 sm:w-44 sm:h-44 rounded-[30px] sm:rounded-[45px] bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/30 group-hover:scale-105">
-              <Plus
-                size={40}
-                className="text-white/30 group-hover:text-white/60 sm:w-[60px] sm:h-[60px]"
-              />
+          {!isEditMode && profiles.length < (profileData?.maxProfiles || 5) && (
+            <div
+              className="flex flex-col items-center group cursor-pointer"
+              onClick={handleOpenAddModal}
+            >
+              <div className="w-32 h-32 sm:w-44 sm:h-44 rounded-[30px] sm:rounded-[45px] bg-white/5 border-2 border-dashed border-white/10 flex items-center justify-center transition-all duration-300 group-hover:bg-white/10 group-hover:border-white/30 group-hover:scale-105">
+                <Plus
+                  size={40}
+                  className="text-white/30 group-hover:text-white/60 sm:w-[60px] sm:h-[60px]"
+                />
+              </div>
+              <p className="mt-4 sm:mt-6 text-zinc-500 text-lg sm:text-2xl font-bold group-hover:text-white transition-colors">
+                Add Profile
+              </p>
             </div>
-            <p className="mt-4 sm:mt-6 text-zinc-500 text-lg sm:text-2xl font-bold group-hover:text-white transition-colors">
-              Add Profile
-            </p>
-          </div>
+          )}
+        </div>
+
+        {/* Profile Limit Message */}
+        {!isEditMode && profiles.length >= (profileData?.maxProfiles || 5) && (
+          <p className="mt-8 text-zinc-500 text-sm sm:text-base animate-pulse">
+            Maximum of {profileData?.maxProfiles || 5} profiles reached.
+          </p>
+        )}
+
+        {/* Edit Button */}
+        <div className="mt-16 sm:mt-24">
+          <Button
+            variant="outline"
+            onClick={() => setIsEditMode(!isEditMode)}
+            className="px-8 sm:px-12 py-3 sm:py-4 text-lg sm:text-xl border-zinc-600 text-zinc-400 hover:text-zinc-400 hover:border-white transition-all"
+          >
+            {isEditMode ? "Done" : "Manage Profiles"}
+          </Button>
         </div>
       </div>
 
-      {/* Modal */}
-      {isModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-6">
-          {/* Backdrop */}
-          <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            onClick={() => setIsModalOpen(false)}
-          />
+      {/* Profile Modal */}
+      <ProfileModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        editingProfile={editingProfile}
+        onSave={handleSaveProfile}
+        isSaving={
+          createProfileMutation.isPending || updateProfileMutation.isPending
+        }
+        avatarColors={AVATAR_COLORS}
+      />
 
-          {/* Modal Content */}
-          <div className="relative z-10 w-full max-w-xl bg-zinc-900 border border-white/10 rounded-[30px] sm:rounded-[40px] p-6 sm:p-12 shadow-2xl overflow-y-auto max-h-[90vh]">
-            <div className="flex justify-between items-center mb-6 sm:mb-10">
-              <h2 className="text-2xl sm:text-3xl font-bold text-white">
-                Add Profile
-              </h2>
-              <button
-                onClick={() => setIsModalOpen(false)}
-                className="p-2 rounded-full bg-white/5 hover:bg-white/10 transition-colors"
-              >
-                <X size={20} className="text-zinc-400 sm:w-6 sm:h-6" />
-              </button>
-            </div>
-
-            <div className="space-y-6 sm:space-y-10">
-              {/* Avatar Preview */}
-              <div className="flex justify-center">
-                <div
-                  className={`w-32 h-32 sm:w-40 sm:h-40 rounded-[30px] sm:rounded-[40px] bg-gradient-to-br ${selectedColor} flex items-center justify-center shadow-2xl shadow-teal-500/20`}
-                >
-                  <User
-                    size={40}
-                    className="text-white sm:w-[60px] sm:h-[60px]"
-                  />
-                </div>
-              </div>
-
-              {/* Name Input */}
-              <Input
-                label="Profile Name"
-                type="text"
-                value={newName}
-                onChange={(e) => setNewName(e.target.value)}
-                placeholder="Enter name"
-                className="h-14 sm:h-16 bg-white/5 border-white/10 rounded-2xl px-4 sm:px-6 text-lg sm:text-xl text-white focus:border-teal-500 placeholder:text-zinc-600"
-                autoFocus
-              />
-
-              {/* Color Selection */}
-              <div className="">
-                <label className="text-zinc-400 text-base sm:text-lg font-medium ml-2">
-                  Choose Avatar Color
-                </label>
-                <div className="flex gap-2 sm:gap-4 justify-between mt-3 sm:mt-4 overflow-x-auto pb-2">
-                  {AVATAR_COLORS.map((color) => (
-                    <button
-                      key={color}
-                      onClick={() => setSelectedColor(color)}
-                      className={`w-10 h-10 sm:w-14 sm:h-14 rounded-xl sm:rounded-2xl bg-gradient-to-br ${color} flex items-center justify-center transition-all duration-200 cursor-pointer hover:scale-110 flex-shrink-0 ${
-                        selectedColor === color
-                          ? "ring-2 sm:ring-4 ring-white ring-offset-2 sm:ring-offset-4 ring-offset-zinc-900 scale-110"
-                          : ""
-                      }`}
-                    >
-                      {selectedColor === color && (
-                        <Check size={18} className="text-white sm:w-6 sm:h-6" />
-                      )}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Actions */}
-              <Button
-                onClick={handleAddProfile}
-                disabled={!newName.trim()}
-                className="w-full h-14 sm:h-16 rounded-2xl text-lg sm:text-xl font-bold mt-2 sm:mt-4"
-              >
-                Add Profile
-              </Button>
-            </div>
-          </div>
-        </div>
-      )}
+      <ConfirmationModal
+        isOpen={isDeleteModalOpen}
+        title="Delete Profile?"
+        description="This profile's history and My List will be gone forever. You can't undo this."
+        okText="Delete"
+        cancelText="Cancel"
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setIsDeleteModalOpen(false)}
+        isLoading={deleteProfileMutation.isPending}
+      />
 
       {/* Footer */}
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
