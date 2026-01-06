@@ -49,3 +49,9 @@ export interface ProfileResponse {
   message: string;
   profile?: Profile;
 }
+
+export interface SwitchProfileResponse {
+  status: boolean;
+  message: string;
+  activeProfile: Profile;
+}

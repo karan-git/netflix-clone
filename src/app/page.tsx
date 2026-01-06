@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SplashScreen from "@/components/SplashScreen";
 import LandingPage from "@/components/LandingPage";
 import Cookies from "js-cookie";
@@ -8,16 +8,27 @@ import { useRouter } from "next/navigation";
 
 export default function Home() {
   const [showSplash, setShowSplash] = useState(true);
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
   const router = useRouter();
 
-  const handleSplashFinish = () => {
+  // Check for token on client-side only to prevent hydration mismatch
+  useEffect(() => {
     const token = Cookies.get("token");
     if (token) {
       router.push("/home");
     } else {
-      setShowSplash(false);
+      setIsCheckingAuth(false);
     }
+  }, [router]);
+
+  const handleSplashFinish = () => {
+    setShowSplash(false);
   };
+
+  // Don't render anything until we've checked auth to prevent flash
+  if (isCheckingAuth) {
+    return null;
+  }
 
   return (
     <main className="min-h-screen bg-black">

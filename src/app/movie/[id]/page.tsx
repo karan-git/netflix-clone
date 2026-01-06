@@ -11,18 +11,21 @@ import { MovieRow } from "@/components/HomePage/MovieRow";
 
 const DUMMY_SLIDES = [
   {
+    id: "1",
     image: "/images/movie.png",
     title: "Kantara",
     description:
       "A fiery young man clashes with an unflinching forest officer in a south Indian village where spirituality, fate and folklore rule the lands.",
   },
   {
+    id: "2",
     image: "/images/movie.png",
     title: "The Legend of Kantara",
     description:
       "Experience the epic battle between man and nature in this spiritual thriller.",
   },
   {
+    id: "3",
     image: "/images/movie.png",
     title: "Spiritual Roots",
     description:

@@ -45,3 +45,14 @@ export const useDeleteProfile = () => {
     },
   });
 };
+
+export const useSwitchProfile = () => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => profileService.switchProfile(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["profiles"] });
+    },
+  });
+};

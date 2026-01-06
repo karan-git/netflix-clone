@@ -24,10 +24,13 @@ function getVisibleCount(width: number) {
 export function CastSection({ cast }: CastSectionProps) {
   const [visible, setVisible] = useState(8);
   const [page, setPage] = useState(0);
+  const [gap, setGap] = useState(16);
 
   useEffect(() => {
     const update = () => {
-      setVisible(getVisibleCount(window.innerWidth));
+      const width = window.innerWidth;
+      setVisible(getVisibleCount(width));
+      setGap(width < 640 ? 12 : 16);
       setPage(0);
     };
 
@@ -91,10 +94,6 @@ export function CastSection({ cast }: CastSectionProps) {
           }}
         >
           {cast.map((member, i) => {
-            const gap =
-              typeof window !== "undefined" && window.innerWidth < 640
-                ? 12
-                : 16;
             return (
               <div
                 key={i}

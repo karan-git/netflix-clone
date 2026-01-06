@@ -1,8 +1,6 @@
-"use client";
 import axios from "axios";
 import Cookies from "js-cookie";
-import { useToast } from "@/context/ToastContext";
-const { showToast } = useToast();
+
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || "https://api.example.com", // Dummy URL
   headers: {
@@ -30,12 +28,7 @@ api.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
-    console.log("Response Error", error);
-    showToast(
-      error?.data?.response?.message ||
-        "Failed to load profiles. Please try again.",
-      "error"
-    );
+
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
       const refreshToken = Cookies.get("refreshToken");
@@ -46,8 +39,9 @@ api.interceptors.response.use(
           const { authService } = await import("@/services/authService");
           const data = await authService.refreshToken(refreshToken);
 
-          if (data.token) {
+          if (data.token && data.refreshToken) {
             Cookies.set("token", data.token, { expires: 7 });
+            Cookies.set("refreshToken", data.refreshToken, { expires: 7 });
             api.defaults.headers.common[
               "Authorization"
             ] = `Bearer ${data.token}`;
@@ -75,6 +69,17 @@ api.interceptors.response.use(
         }
       }
     }
+
+    // Global error handling: show toast for other errors
+    if (error.response?.status !== 401) {
+      const { toast } = await import("@/context/ToastContext");
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "An unexpected error occurred";
+      toast(errorMessage, "error");
+    }
+
     return Promise.reject(error);
   }
 );

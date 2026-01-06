@@ -17,6 +17,15 @@ const withPWA = withPWAInit({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  images: {
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "dqfesk38cs7qk.cloudfront.net",
+        pathname: "**",
+      },
+    ],
+  },
 };
 
 export default withPWA(nextConfig);

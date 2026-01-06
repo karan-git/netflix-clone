@@ -10,6 +10,7 @@ import {
   useCreateProfile,
   useUpdateProfile,
   useDeleteProfile,
+  useSwitchProfile,
 } from "@/hooks/useProfile";
 import { Profile } from "@/types/profile";
 import { ConfirmationModal } from "@/components/Common/ConfirmationModal";
@@ -32,6 +33,7 @@ export default function WhosWatching() {
   const createProfileMutation = useCreateProfile();
   const updateProfileMutation = useUpdateProfile();
   const deleteProfileMutation = useDeleteProfile();
+  const switchProfileMutation = useSwitchProfile();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditMode, setIsEditMode] = useState(false);
@@ -121,6 +123,24 @@ export default function WhosWatching() {
     );
   }
 
+  const handleProfileClick = async (profileId: string) => {
+    if (isEditMode) return;
+    try {
+      const response = await switchProfileMutation.mutateAsync(profileId);
+      if (response.status) {
+        router.push("/home");
+      } else {
+        showToast(response.message || "Failed to switch profile", "error");
+      }
+    } catch (error: any) {
+      console.error("Failed to switch profile:", error);
+      showToast(
+        error?.response?.data?.message || "Failed to switch profile",
+        "error"
+      );
+    }
+  };
+
   const profiles = profileData?.profiles || [];
 
   return (
@@ -148,7 +168,7 @@ export default function WhosWatching() {
                       AVATAR_COLORS.length
                   ]
                 } cursor-pointer`}
-                onClick={() => (isEditMode ? null : router.push("/home"))}
+                onClick={() => handleProfileClick(profile._id)}
               >
                 <User
                   size={40}

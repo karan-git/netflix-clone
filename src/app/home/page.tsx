@@ -1,59 +1,36 @@
+"use client";
+
 import { Header } from "@/components/HomePage/Header";
-import { MovieRow } from "@/components/HomePage/MovieRow";
 import Footer from "@/components/Footer";
-import { HeroCarousel } from "@/components/HomePage/HeroCarousel";
+
+import { useSettings } from "@/hooks/useHome";
+
+import { DynamicHeroCarousel } from "@/components/HomePage/DynamicHeroCarousel";
+import { WidgetRow } from "@/components/HomePage/WidgetRow";
 
 export default function HomePage() {
+  const { data: settingsData, isLoading: isSettingsLoading } = useSettings();
+
+  const widgets = settingsData?.widgets || [];
+  const heroWidget = widgets.find((w) => w.type === 1 && w.isActive);
+  const rowWidgets = widgets
+    .filter((w) => w.type === 3 && w.isActive)
+    .sort((a, b) => a.order - b.order);
+
   return (
     <main className="bg-gray-900 min-h-screen">
       <Header />
-      <HeroCarousel
-        autoplay={true}
-        interval={3000}
-        slides={[
-          {
-            id: "1",
-            image: "/images/image.png",
-            title: "Avengers : Endgame",
-            description:
-              "Lorem ipsum dolor sit amet consectetur. Scelerisque diam porta nisi massa etiam.",
-            videoUrl: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
-            subtitleUrl: "https://test-streams.mux.dev/x36xhzz/subtitles.vtt",
-          },
-          {
-            id: "2",
-            image: "/images/hero-2.jpg",
-            title: "Spider-Man : No Way Home",
-            description:
-              "Eu pellentesque integer dui turpis aliquam sollicitudin consectetur.",
-            videoUrl:
-              "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
-          },
-        ]}
-      />
 
-      <div className="sm:px-12 px-4 mb-12">
-        <MovieRow
-          title="Top 10 Trending"
-          items={Array(8).fill({
-            image: "/images/movie.png",
-            duration: "1h 30min",
-            views: "2K",
-          })}
-        />
+      {heroWidget && <DynamicHeroCarousel widget={heroWidget} />}
 
-        <MovieRow
-          title="New Releases"
-          items={Array(8).fill({
-            image: "/images/movie.png",
-            footer: (
-              <div className="text-neutral-400 text-xs sm:text-lg">
-                Released at{" "}
-                <span className="text-stone-300">14 April 2023</span>
-              </div>
-            ),
-          })}
-        />
+      <div className="mt-12 min-h-[100vh]">
+        {rowWidgets.map((widget) => (
+          <WidgetRow
+            key={widget._id}
+            widget={widget}
+            isSettingsLoading={isSettingsLoading}
+          />
+        ))}
       </div>
 
       <Footer />

@@ -106,9 +106,10 @@ export function HeroCarousel({
                 {slide.title}
               </h1>
 
-              <p className="mt-2 sm:mt-4 max-w-3xl text-neutral-300 text-sm sm:text-base md:text-lg line-clamp-3 sm:line-clamp-none">
-                {slide.description}
-              </p>
+              <div
+                className="mt-2 sm:mt-4 max-w-3xl text-neutral-300 text-sm sm:text-base md:text-lg line-clamp-3 sm:line-clamp-none"
+                dangerouslySetInnerHTML={{ __html: slide.description }}
+              />
 
               <div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-4 flex-wrap justify-center">
                 <Button

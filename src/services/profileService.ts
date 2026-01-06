@@ -4,6 +4,7 @@ import {
   CreateProfileRequest,
   UpdateProfileRequest,
   ProfileResponse,
+  SwitchProfileResponse,
 } from "@/types/profile";
 
 export const profileService = {
@@ -32,6 +33,14 @@ export const profileService = {
 
   deleteProfile: async (id: string): Promise<ProfileResponse> => {
     const response = await api.delete<ProfileResponse>(`/user/profiles/${id}`);
+    return response.data;
+  },
+
+  switchProfile: async (id: string): Promise<SwitchProfileResponse> => {
+    const response = await api.post<SwitchProfileResponse>(
+      `/user/profiles/${id}/switch`,
+      {}
+    );
     return response.data;
   },
 };

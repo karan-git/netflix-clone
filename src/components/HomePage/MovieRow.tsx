@@ -15,16 +15,21 @@ function getVisibleCount(width: number) {
 export function MovieRow({
   title,
   items,
+  hideTitle = false,
 }: {
   title: string;
   items: MovieCardProps[];
+  hideTitle?: boolean;
 }) {
   const [visible, setVisible] = useState(5);
   const [page, setPage] = useState(0);
+  const [gap, setGap] = useState(24);
 
   useEffect(() => {
     const update = () => {
-      setVisible(getVisibleCount(window.innerWidth));
+      const width = window.innerWidth;
+      setVisible(getVisibleCount(width));
+      setGap(width >= 640 ? 24 : 16);
       setPage(0);
     };
 
@@ -41,14 +46,16 @@ export function MovieRow({
   const next = () => setPage((p) => Math.min(p + 1, maxPage));
 
   return (
-    <section className="mt-8 sm:mt-12 md:mt-16">
+    <section className="mt-8">
       {/* HEADER */}
       <div className="flex justify-between items-center mb-4 sm:mb-6">
-        <h2 className="text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
-          {title}
-        </h2>
+        {!hideTitle && (
+          <h2 className="text-white text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold">
+            {title}
+          </h2>
+        )}
 
-        <div className="flex items-center gap-2 sm:gap-3 bg-neutral-800 rounded-lg p-1">
+        <div className="flex items-center gap-2 sm:gap-3 bg-neutral-800 rounded-lg p-1 ml-auto mt-[-6rem]">
           <Button
             variant="custom"
             onClick={prev}
@@ -93,10 +100,6 @@ export function MovieRow({
           }}
         >
           {items.map((item, i) => {
-            const gap =
-              typeof window !== "undefined" && window.innerWidth >= 640
-                ? 24
-                : 16;
             return (
               <div
                 key={i}
