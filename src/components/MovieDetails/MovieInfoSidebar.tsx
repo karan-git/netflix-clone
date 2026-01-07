@@ -7,6 +7,14 @@ interface MovieInfoSidebarProps {
   languages: string[];
   genres: string[];
   ratings: Rating[];
+  director?: {
+    name: string;
+    image?: string;
+  };
+  music?: {
+    name: string;
+    image?: string;
+  };
 }
 
 export function MovieInfoSidebar({
@@ -14,6 +22,8 @@ export function MovieInfoSidebar({
   languages,
   genres,
   ratings,
+  director,
+  music,
 }: MovieInfoSidebarProps) {
   return (
     <aside className="space-y-6">
@@ -48,18 +58,24 @@ export function MovieInfoSidebar({
           </span>
         ))}
       </InfoBlock>
-      <Category
-        title="Director"
-        name="John Doe"
-        country="USA"
-        avatar="/images/logo.png"
-      />
-      <Category
-        title="Music"
-        name="John Doe"
-        country="USA"
-        avatar="/images/logo.png"
-      />
+
+      {director && (
+        <Category
+          title="Director"
+          name={director.name}
+          country="Director"
+          avatar={director.image || "/images/logo.png"}
+        />
+      )}
+
+      {music && (
+        <Category
+          title="Music"
+          name={music.name}
+          country="Music Composer"
+          avatar={music.image || "/images/logo.png"}
+        />
+      )}
     </aside>
   );
 }

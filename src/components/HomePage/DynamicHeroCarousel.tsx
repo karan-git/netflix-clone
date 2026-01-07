@@ -19,12 +19,18 @@ export function DynamicHeroCarousel({ widget }: DynamicHeroCarouselProps) {
 
   const slides =
     widgetData?.series?.map((item: any) => ({
-      id: item._id,
+      _id: item._id,
       image: item.banner || item.thumbnail || item.image || "/images/image.png",
       title: item.title,
       description: item.description,
       videoUrl: item.videoUrl,
       subtitleUrl: item.subtitleUrl,
+      hlsFileName: item.hlsFileName,
+      drmEnabled: item.drmEnabled,
+      mediaType: item.media_type,
+      firstEpisode: item.firstEpisode || item.episode?.[0],
+      videoType: item.videoType,
+      link: item.link,
     })) || [];
 
   if (slides.length === 0) {

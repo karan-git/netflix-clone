@@ -1,12 +1,23 @@
 "use client";
 import { ArrowDown } from "lucide-react";
 import React, { useState } from "react";
+import Image from "next/image";
+import { movieService } from "@/services/movieService";
+import { VideoPlayer } from "@/components/Common/VideoPlayer";
+import { Loader2 } from "lucide-react";
 
 interface Episode {
+  _id: string;
   id: number;
   title: string;
   description: string;
   duration: string;
+  image: string;
+  link?: string;
+  videoType?: number;
+  videoUrl?: string;
+  hlsFileName?: string;
+  drmEnabled?: boolean;
 }
 
 interface Season {
@@ -72,7 +83,40 @@ export function SeasonsAndEpisodes({ seasons }: SeasonsAndEpisodesProps) {
   );
 }
 
-function EpisodeRow({ episode }: { episode: any }) {
+function EpisodeRow({ episode }: { episode: Episode }) {
+  const [activeVideo, setActiveVideo] = useState<{
+    url: string;
+    title: string;
+  } | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+
+  const handlePlay = async () => {
+    if (episode.videoType === 0 && episode.link) {
+      setActiveVideo({
+        url: episode.link,
+        title: episode.title,
+      });
+    } else if (episode.hlsFileName) {
+      try {
+        setIsLoading(true);
+        const signedUrl = await movieService.getSignedUrl(
+          episode.hlsFileName,
+          episode.drmEnabled || false
+        );
+        if (signedUrl) {
+          setActiveVideo({
+            url: signedUrl,
+            title: episode.title,
+          });
+        }
+      } catch (error) {
+        console.error("Error fetching signed URL for episode:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
   return (
     <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 py-6 sm:py-8 border-b border-neutral-800 last:border-b-0">
       <div className="flex items-center gap-4 sm:block">
@@ -81,13 +125,44 @@ function EpisodeRow({ episode }: { episode: any }) {
           {String(episode.id).padStart(2, "0")}
         </div>
 
-        {/* Thumbnail */}
-        <div className="w-32 sm:w-44 h-20 sm:h-28 bg-black/50 rounded-xl border border-neutral-800 flex items-center justify-center flex-shrink-0">
-          <div className="w-8 h-8 sm:w-12 sm:h-12 bg-black/60 rounded-full flex items-center justify-center text-xs sm:text-base">
-            ▶
-          </div>
+        {/* Thumbnail / Player */}
+        <div
+          onClick={handlePlay}
+          className={`relative w-32 sm:w-44 h-20 sm:h-28 bg-black/50 rounded-xl border border-neutral-800 overflow-hidden flex-shrink-0 ${
+            (episode.videoType === 0 && episode.link) || episode.hlsFileName
+              ? "cursor-pointer group"
+              : ""
+          }`}
+        >
+          <>
+            <Image
+              src={episode.image || "/images/movie.png"}
+              alt={episode.title}
+              fill
+              className="object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/40 transition-colors">
+              <div className="w-8 h-8 sm:w-12 sm:h-12 bg-black/60 rounded-full flex items-center justify-center text-xs sm:text-base group-hover:scale-110 transition-transform">
+                ▶
+              </div>
+            </div>
+            {isLoading && (
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40">
+                <Loader2 className="w-8 h-8 text-white animate-spin" />
+              </div>
+            )}
+          </>
         </div>
       </div>
+
+      {activeVideo && (
+        <VideoPlayer
+          url={activeVideo.url}
+          title={activeVideo.title}
+          movieId={episode._id}
+          onClose={() => setActiveVideo(null)}
+        />
+      )}
 
       {/* Info */}
       <div className="flex-1 space-y-2 sm:space-y-3">

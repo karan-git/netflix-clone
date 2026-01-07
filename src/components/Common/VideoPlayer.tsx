@@ -15,6 +15,9 @@ import {
 } from "lucide-react";
 import { Button } from "./Button";
 import { cn } from "@/lib/utils";
+import { movieService } from "@/services/movieService";
+import { Subtitle } from "@/types/movie";
+import { SubtitleMenu } from "./SubtitleMenu";
 
 interface VideoPlayerProps {
   url: string;
@@ -40,8 +43,98 @@ export function VideoPlayer({
   const [showControls, setShowControls] = useState(true);
   const [duration, setDuration] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
-  const [showSubtitles, setShowSubtitles] = useState(true);
+  const [selectedSubtitleId, setSelectedSubtitleId] = useState<string | null>(
+    null
+  );
+  const [showSubtitleMenu, setShowSubtitleMenu] = useState(false);
+  const [subtitles, setSubtitles] = useState<Subtitle[]>([]);
   const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isYoutube = url.includes("youtube.com") || url.includes("youtu.be");
+
+  const getYouTubeEmbedUrl = (url: string) => {
+    try {
+      const videoId = url.split("v=")[1]?.split("&")[0] || url.split("/").pop();
+      return `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    } catch (e) {
+      return url;
+    }
+  };
+
+  const convertSrtToVtt = (srtText: string) => {
+    let vttText = "WEBVTT\n\n";
+    vttText += srtText
+      .replace(/(\d\d:\d\d:\d\d),(\d\d\d)/g, "$1.$2") // Replace commas with dots in timestamps
+      .replace(/\r/g, ""); // Remove carriage returns
+    return vttText;
+  };
+
+  useEffect(() => {
+    if (isYoutube) return;
+
+    const fetchSubtitles = async () => {
+      try {
+        console.log("VideoPlayer: Fetching subtitles for movieId:", movieId);
+        const response = await movieService.getSubtitles(movieId);
+        console.log("VideoPlayer: Subtitles response:", response);
+        if (response.status) {
+          const processedSubtitles = await Promise.all(
+            response.subtitles.map(async (sub) => {
+              if (sub.file.endsWith(".srt")) {
+                try {
+                  const proxyUrl = `/api/subtitle-proxy?url=${encodeURIComponent(
+                    sub.file
+                  )}`;
+                  console.log("VideoPlayer: Fetching SRT via proxy:", proxyUrl);
+                  const srtRes = await fetch(proxyUrl);
+                  if (!srtRes.ok)
+                    throw new Error(`Proxy fetch failed: ${srtRes.statusText}`);
+                  const srtText = await srtRes.text();
+                  console.log("VideoPlayer: SRT text fetched successfully");
+                  const vttText = convertSrtToVtt(srtText);
+                  const blob = new Blob([vttText], { type: "text/vtt" });
+                  return {
+                    ...sub,
+                    file: URL.createObjectURL(blob),
+                    isConverted: true,
+                  };
+                } catch (e) {
+                  console.error("VideoPlayer: Error converting SRT:", e);
+                  return sub;
+                }
+              }
+              return sub;
+            })
+          );
+          setSubtitles(processedSubtitles);
+
+          // Set default subtitle if available
+          const defaultSub = processedSubtitles.find((s) => s.isDefault);
+          if (defaultSub) {
+            setSelectedSubtitleId(defaultSub._id);
+          } else if (processedSubtitles.length > 0) {
+            // Optional: Select first available if no default?
+            // For now, let's stick to explicit default or off.
+            setSelectedSubtitleId(processedSubtitles[0]._id);
+          }
+        }
+      } catch (error) {
+        console.error("VideoPlayer: Error fetching subtitles:", error);
+      }
+    };
+
+    fetchSubtitles();
+  }, [movieId, isYoutube]);
+
+  useEffect(() => {
+    return () => {
+      // Cleanup Blob URLs
+      subtitles.forEach((sub: any) => {
+        if (sub.isConverted && sub.file.startsWith("blob:")) {
+          URL.revokeObjectURL(sub.file);
+        }
+      });
+    };
+  }, [subtitles]);
 
   useEffect(() => {
     const video = videoRef.current;
@@ -85,7 +178,12 @@ export function VideoPlayer({
 
     const handleTimeUpdate = () => {
       setCurrentTime(video.currentTime);
-      setProgress((video.currentTime / video.duration) * 100);
+      const duration = video.duration;
+      if (duration > 0) {
+        setProgress((video.currentTime / duration) * 100);
+      } else {
+        setProgress(0);
+      }
       // Save progress
       localStorage.setItem(
         `video-resume-${movieId}`,
@@ -112,6 +210,32 @@ export function VideoPlayer({
       video.removeEventListener("pause", handlePause);
     };
   }, [movieId]);
+
+  useEffect(() => {
+    const video = videoRef.current;
+    if (!video) return;
+
+    const tracks = video.textTracks;
+    // Hide all tracks first
+    for (let i = 0; i < tracks.length; i++) {
+      tracks[i].mode = "hidden";
+    }
+
+    // Enable the selected track
+    if (selectedSubtitleId) {
+      const selectedSub = subtitles.find((s) => s._id === selectedSubtitleId);
+      if (selectedSub) {
+        // Find the track index that corresponds to this subtitle
+        // Note: The order of tracks in video.textTracks matches the order of <track> elements
+        const trackIndex = subtitles.findIndex(
+          (s) => s._id === selectedSubtitleId
+        );
+        if (trackIndex !== -1 && trackIndex < tracks.length) {
+          tracks[trackIndex].mode = "showing";
+        }
+      }
+    }
+  }, [selectedSubtitleId, subtitles]);
 
   const togglePlay = () => {
     if (videoRef.current?.paused) {
@@ -159,7 +283,7 @@ export function VideoPlayer({
       clearTimeout(controlsTimeoutRef.current);
     }
     controlsTimeoutRef.current = setTimeout(() => {
-      if (isPlaying) setShowControls(false);
+      if (isPlaying && !showSubtitleMenu) setShowControls(false);
     }, 3000);
   };
 
@@ -172,29 +296,56 @@ export function VideoPlayer({
       .padStart(2, "0")}`;
   };
 
+  const handleSubtitleSelect = (id: string | null) => {
+    setSelectedSubtitleId(id);
+    setShowSubtitleMenu(false);
+  };
+
   return (
     <div
       ref={containerRef}
       className="fixed inset-0 z-[100] bg-black flex items-center justify-center group select-none"
       onMouseMove={handleMouseMove}
-      onMouseLeave={() => isPlaying && setShowControls(false)}
+      onMouseLeave={() =>
+        isPlaying && !showSubtitleMenu && setShowControls(false)
+      }
     >
-      <video
-        ref={videoRef}
-        className="w-full h-full"
-        onClick={togglePlay}
-        playsInline
-      >
-        {subtitleUrl && (
-          <track
-            kind="subtitles"
-            src={subtitleUrl}
-            srcLang="en"
-            label="English"
-            default={showSubtitles}
-          />
-        )}
-      </video>
+      {isYoutube ? (
+        <iframe
+          src={getYouTubeEmbedUrl(url)}
+          className="w-full h-full"
+          allow="autoplay; encrypted-media"
+          allowFullScreen
+        />
+      ) : (
+        <video
+          ref={videoRef}
+          className="w-full h-full"
+          onClick={togglePlay}
+          playsInline
+          crossOrigin="anonymous"
+        >
+          {subtitles.map((sub) => (
+            <track
+              key={sub._id}
+              kind="subtitles"
+              src={sub.file}
+              srcLang={sub.language.uniqueId.toLowerCase()}
+              label={sub.language.name}
+              default={sub._id === selectedSubtitleId}
+            />
+          ))}
+          {/* Fallback for single subtitleUrl prop if needed, though we primarily use the subtitles array now */}
+          {subtitleUrl && !subtitles.find((s) => s.file === subtitleUrl) && (
+            <track
+              kind="subtitles"
+              src={subtitleUrl}
+              srcLang="en"
+              label="English"
+            />
+          )}
+        </video>
+      )}
 
       {/* TOP BAR */}
       <div
@@ -216,108 +367,115 @@ export function VideoPlayer({
       </div>
 
       {/* CENTER PLAY/PAUSE (Mobile) */}
-      <div
-        className={cn(
-          "absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300",
-          showControls ? "opacity-100" : "opacity-0"
-        )}
-      >
-        <button
-          onClick={togglePlay}
-          className="p-6 bg-black/40 rounded-full text-white pointer-events-auto hover:bg-black/60 transition-transform active:scale-90"
-        >
-          {isPlaying ? (
-            <Pause size={48} fill="currentColor" />
-          ) : (
-            <Play size={48} fill="currentColor" />
-          )}
-        </button>
-      </div>
+      {!isYoutube && showControls && (
+        <div className="absolute inset-0 flex items-center justify-center pointer-events-none transition-opacity duration-300">
+          <button
+            onClick={togglePlay}
+            className="p-6 bg-black/40 rounded-full text-white pointer-events-auto hover:bg-black/60 transition-transform active:scale-90"
+          >
+            {isPlaying ? (
+              <Pause size={48} fill="currentColor" />
+            ) : (
+              <Play size={48} fill="currentColor" />
+            )}
+          </button>
+        </div>
+      )}
 
       {/* BOTTOM CONTROLS */}
-      <div
-        className={cn(
-          "absolute bottom-0 left-0 right-0 p-4 sm:p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300",
-          showControls ? "opacity-100" : "opacity-0 pointer-events-none"
-        )}
-      >
-        {/* Progress Bar */}
-        <div className="relative w-full h-1.5 bg-white/30 rounded-full mb-6 group/progress cursor-pointer">
-          <input
-            type="range"
-            min="0"
-            max="100"
-            value={progress}
-            onChange={handleSeek}
-            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
-          />
-          <div
-            className="absolute top-0 left-0 h-full bg-red-600 rounded-full"
-            style={{ width: `${progress}%` }}
-          >
-            <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-red-600 rounded-full scale-0 group-hover/progress:scale-100 transition-transform shadow-lg" />
-          </div>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4 sm:gap-6">
-            <button
-              onClick={togglePlay}
-              className="text-white hover:scale-110 transition-transform"
+      {!isYoutube && (
+        <div
+          className={cn(
+            "absolute bottom-0 left-0 right-0 p-4 sm:p-8 bg-gradient-to-t from-black/90 via-black/40 to-transparent transition-opacity duration-300",
+            showControls ? "opacity-100" : "opacity-0 pointer-events-none"
+          )}
+        >
+          {/* Progress Bar */}
+          <div className="relative w-full h-1.5 bg-white/30 rounded-full mb-6 group/progress cursor-pointer">
+            <input
+              type="range"
+              min="0"
+              max="100"
+              value={isNaN(progress) ? 0 : progress}
+              onChange={handleSeek}
+              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+            />
+            <div
+              className="absolute top-0 left-0 h-full bg-red-600 rounded-full"
+              style={{ width: `${progress}%` }}
             >
-              {isPlaying ? (
-                <Pause size={28} fill="currentColor" />
-              ) : (
-                <Play size={28} fill="currentColor" />
-              )}
-            </button>
+              <div className="absolute right-0 top-1/2 -translate-y-1/2 w-4 h-4 bg-red-600 rounded-full scale-0 group-hover/progress:scale-100 transition-transform shadow-lg" />
+            </div>
+          </div>
 
-            <div className="flex items-center gap-2 group/volume">
-              <button onClick={toggleMute} className="text-white">
-                {isMuted || volume === 0 ? (
-                  <VolumeX size={28} />
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4 sm:gap-6">
+              <button
+                onClick={togglePlay}
+                className="text-white hover:scale-110 transition-transform"
+              >
+                {isPlaying ? (
+                  <Pause size={28} fill="currentColor" />
                 ) : (
-                  <Volume2 size={28} />
+                  <Play size={28} fill="currentColor" />
                 )}
               </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.1"
-                value={isMuted ? 0 : volume}
-                onChange={handleVolumeChange}
-                className="w-0 group-hover/volume:w-24 transition-all duration-300 accent-red-600 cursor-pointer"
-              />
+
+              <div className="flex items-center gap-2 group/volume">
+                <button onClick={toggleMute} className="text-white">
+                  {isMuted || volume === 0 ? (
+                    <VolumeX size={28} />
+                  ) : (
+                    <Volume2 size={28} />
+                  )}
+                </button>
+                <input
+                  type="range"
+                  min="0"
+                  max="1"
+                  step="0.1"
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                  className="w-0 group-hover/volume:w-24 transition-all duration-300 accent-red-600 cursor-pointer"
+                />
+              </div>
+
+              <span className="text-white text-sm font-medium">
+                {formatTime(currentTime)} / {formatTime(duration)}
+              </span>
             </div>
 
-            <span className="text-white text-sm font-medium">
-              {formatTime(currentTime)} / {formatTime(duration)}
-            </span>
-          </div>
-
-          <div className="flex items-center gap-4 sm:gap-6">
-            <button
-              onClick={() => setShowSubtitles(!showSubtitles)}
-              className={cn(
-                "text-white transition-colors",
-                showSubtitles ? "text-red-600" : "text-white/60"
+            <div className="flex items-center gap-4 sm:gap-6 relative">
+              {showSubtitleMenu && (
+                <SubtitleMenu
+                  subtitles={subtitles}
+                  selectedSubtitleId={selectedSubtitleId}
+                  onSelect={handleSubtitleSelect}
+                  onClose={() => setShowSubtitleMenu(false)}
+                />
               )}
-            >
-              <Subtitles size={28} />
-            </button>
-            <button className="text-white hover:rotate-90 transition-transform">
-              <Settings size={28} />
-            </button>
-            <button
-              onClick={toggleFullscreen}
-              className="text-white hover:scale-110 transition-transform"
-            >
-              <Maximize size={28} />
-            </button>
+              <button
+                onClick={() => setShowSubtitleMenu(!showSubtitleMenu)}
+                className={cn(
+                  "text-white transition-colors",
+                  selectedSubtitleId ? "text-red-600" : "text-white/60"
+                )}
+              >
+                <Subtitles size={28} />
+              </button>
+              <button className="text-white hover:rotate-90 transition-transform">
+                <Settings size={28} />
+              </button>
+              <button
+                onClick={toggleFullscreen}
+                className="text-white hover:scale-110 transition-transform"
+              >
+                <Maximize size={28} />
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }

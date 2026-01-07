@@ -11,14 +11,25 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/Common/Button";
 import { VideoPlayer } from "@/components/Common/VideoPlayer";
+import { movieService } from "@/services/movieService";
+import { Loader2 } from "lucide-react";
 
 interface HeroSlide {
-  id: string | number;
+  _id: string | number;
   image: string;
   title: string;
   description: string;
   videoUrl?: string;
   subtitleUrl?: string;
+  hlsFileName?: string;
+  drmEnabled?: boolean;
+  mediaType?: "movie" | "series" | "tv";
+  firstEpisode?: {
+    hlsFileName?: string;
+    drmEnabled?: boolean;
+  };
+  videoType?: number;
+  link?: string;
 }
 
 interface HeroCarouselProps {
@@ -34,6 +45,7 @@ export function HeroCarousel({
 }: HeroCarouselProps) {
   const [current, setCurrent] = useState(0);
   const [activeVideo, setActiveVideo] = useState<HeroSlide | null>(null);
+  const [isLoadingVideo, setIsLoadingVideo] = useState(false);
   const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const prev = () =>
@@ -59,6 +71,55 @@ export function HeroCarousel({
     startAutoplay();
     return stopAutoplay;
   }, [current, autoplay, interval]);
+
+  const handlePlay = async (slide: HeroSlide) => {
+    console.log("HeroCarousel: handlePlay called for slide:", slide);
+    let hlsFileName = slide.hlsFileName;
+    let drm = slide.drmEnabled || false;
+
+    if (slide.mediaType === "tv" || slide.mediaType === "series") {
+      hlsFileName = slide.firstEpisode?.hlsFileName;
+      drm = slide.firstEpisode?.drmEnabled || false;
+    }
+
+    console.log(
+      "HeroCarousel: Resolved hlsFileName:",
+      hlsFileName,
+      "drm:",
+      drm
+    );
+
+    if (slide.videoType === 0 && slide.link) {
+      console.log("HeroCarousel: Playing YouTube link:", slide.link);
+      setActiveVideo({ ...slide, videoUrl: slide.link });
+      return;
+    }
+
+    if (hlsFileName) {
+      try {
+        setIsLoadingVideo(true);
+        const signedUrl = await movieService.getSignedUrl(hlsFileName, drm);
+        if (signedUrl) {
+          console.log(
+            "HeroCarousel: Successfully fetched signedUrl:",
+            signedUrl
+          );
+          setActiveVideo({ ...slide, videoUrl: signedUrl });
+        } else {
+          console.error("HeroCarousel: Signed URL is empty");
+        }
+      } catch (error) {
+        console.error("HeroCarousel: Error fetching signed URL:", error);
+      } finally {
+        setIsLoadingVideo(false);
+      }
+    } else if (slide.videoUrl) {
+      console.log("HeroCarousel: Playing direct videoUrl:", slide.videoUrl);
+      setActiveVideo(slide);
+    } else {
+      console.warn("HeroCarousel: No hlsFileName or videoUrl found for slide");
+    }
+  };
 
   return (
     <section
@@ -114,10 +175,15 @@ export function HeroCarousel({
               <div className="mt-6 sm:mt-8 flex items-center gap-3 sm:gap-4 flex-wrap justify-center">
                 <Button
                   variant="custom"
-                  onClick={() => setActiveVideo(slide)}
-                  className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 rounded-lg text-white font-semibold border-none shadow-none text-sm sm:text-base"
+                  onClick={() => handlePlay(slide)}
+                  disabled={isLoadingVideo}
+                  className="flex items-center gap-2 px-4 sm:px-6 py-2 sm:py-3 bg-gradient-to-br from-sky-500 via-cyan-500 to-teal-500 rounded-lg text-white font-semibold border-none shadow-none text-sm sm:text-base disabled:opacity-70"
                 >
-                  ▶ Play Now
+                  {isLoadingVideo ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    "▶ Play Now"
+                  )}
                 </Button>
 
                 <div className="flex gap-2 sm:gap-4">
@@ -175,7 +241,7 @@ export function HeroCarousel({
           url={activeVideo.videoUrl}
           title={activeVideo.title}
           subtitleUrl={activeVideo.subtitleUrl}
-          movieId={activeVideo.id}
+          movieId={activeVideo._id}
           onClose={() => setActiveVideo(null)}
         />
       )}
