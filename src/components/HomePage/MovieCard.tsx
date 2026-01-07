@@ -8,7 +8,7 @@ export interface MovieCardProps {
   id?: string | number;
   image: string;
   duration?: string;
-  views?: string;
+  views?: string | number;
   footer?: any;
 }
 
@@ -20,6 +20,27 @@ export function MovieCard({
   footer,
 }: MovieCardProps) {
   const router = useRouter();
+  const formatViews = (views: string | number | undefined) => {
+    if (views === undefined || views === null) return "";
+
+    let num: number;
+    if (typeof views === "number") {
+      num = views;
+    } else {
+      num = parseInt(views.replace(/,/g, ""), 10);
+    }
+
+    if (isNaN(num)) return views.toString();
+
+    if (num >= 1000000) {
+      return (num / 1000000).toFixed(1).replace(/\.0$/, "") + "m";
+    }
+    if (num >= 1000) {
+      return (num / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+    }
+    return num.toString();
+  };
+
   return (
     <div
       className="
@@ -60,7 +81,7 @@ export function MovieCard({
           )}
           {views && (
             <span className="px-2 py-1 bg-neutral-900 rounded-full text-neutral-400 flex items-center gap-2">
-              <Eye /> {views}
+              <Eye /> {formatViews(views)}
             </span>
           )}
         </div>

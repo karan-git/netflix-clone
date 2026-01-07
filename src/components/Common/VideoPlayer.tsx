@@ -60,11 +60,23 @@ export function VideoPlayer({
     }
   };
 
-  const convertSrtToVtt = (srtText: string) => {
-    let vttText = "WEBVTT\n\n";
-    vttText += srtText
-      .replace(/(\d\d:\d\d:\d\d),(\d\d\d)/g, "$1.$2") // Replace commas with dots in timestamps
+  const processSubtitleContent = (text: string, isSrt: boolean) => {
+    let vttText = isSrt ? "WEBVTT\n\n" : "";
+
+    if (isSrt) {
+      vttText += text.replace(/(\d\d:\d\d:\d\d),(\d\d\d)/g, "$1.$2"); // Replace commas with dots
+    } else {
+      vttText += text;
+    }
+
+    // Lift subtitles by adding line:85% to timestamps
+    vttText = vttText
+      .replace(
+        /(\d\d:\d\d:\d\d\.\d\d\d\s*-->\s*\d\d:\d\d:\d\d\.\d\d\d)/g,
+        "$1 line:85%"
+      )
       .replace(/\r/g, ""); // Remove carriage returns
+
     return vttText;
   };
 
@@ -79,18 +91,29 @@ export function VideoPlayer({
         if (response.status) {
           const processedSubtitles = await Promise.all(
             response.subtitles.map(async (sub) => {
-              if (sub.file.endsWith(".srt")) {
+              const isSrt = sub.file.endsWith(".srt");
+              const isVtt = sub.file.endsWith(".vtt");
+
+              if (isSrt || isVtt) {
                 try {
                   const proxyUrl = `/api/subtitle-proxy?url=${encodeURIComponent(
                     sub.file
                   )}`;
-                  console.log("VideoPlayer: Fetching SRT via proxy:", proxyUrl);
-                  const srtRes = await fetch(proxyUrl);
-                  if (!srtRes.ok)
-                    throw new Error(`Proxy fetch failed: ${srtRes.statusText}`);
-                  const srtText = await srtRes.text();
-                  console.log("VideoPlayer: SRT text fetched successfully");
-                  const vttText = convertSrtToVtt(srtText);
+                  console.log(
+                    `VideoPlayer: Fetching ${isSrt ? "SRT" : "VTT"} via proxy:`,
+                    proxyUrl
+                  );
+                  const res = await fetch(proxyUrl);
+                  if (!res.ok)
+                    throw new Error(`Proxy fetch failed: ${res.statusText}`);
+                  const text = await res.text();
+                  console.log(
+                    `VideoPlayer: ${
+                      isSrt ? "SRT" : "VTT"
+                    } text fetched successfully`
+                  );
+
+                  const vttText = processSubtitleContent(text, isSrt);
                   const blob = new Blob([vttText], { type: "text/vtt" });
                   return {
                     ...sub,
@@ -98,7 +121,10 @@ export function VideoPlayer({
                     isConverted: true,
                   };
                 } catch (e) {
-                  console.error("VideoPlayer: Error converting SRT:", e);
+                  console.error(
+                    `VideoPlayer: Error processing ${isSrt ? "SRT" : "VTT"}:`,
+                    e
+                  );
                   return sub;
                 }
               }
